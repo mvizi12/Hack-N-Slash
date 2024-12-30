@@ -1,4 +1,7 @@
 /.vscode
 /Content
+/DerivedDataCache
 /Intermediate
 /Saved
+/Plugins/RLPlugin/Content
+/Plugins/RLPlugin/Intermediate
