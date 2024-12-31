@@ -2,6 +2,8 @@
 
 
 #include "PlayerAnimInstance.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 /*PRIVATE FUNCTIONS*/
 void UPlayerAnimInstance::UpdateVelocity()
@@ -16,6 +18,8 @@ void UPlayerAnimInstance::UpdateVelocity()
 void UPlayerAnimInstance::UpdatePlayerPawn()
 {
     playerPawn = TryGetPawnOwner();
+    characterRef = Cast<ACharacter>(playerPawn);
+    movementComp = characterRef->GetCharacterMovement();
 }
 
 void UPlayerAnimInstance::UpdateCurrentAngle()
@@ -34,4 +38,11 @@ void UPlayerAnimInstance::UpdateCurrentSpeed()
 
     UpdateVelocity();
     currentSpeed = static_cast<float>(currentVeloctiy.Length());
+}
+
+void UPlayerAnimInstance::UpdateIsFalling()
+{
+    if (!IsValid(playerPawn)) {return;}
+
+    bIsFalling = movementComp->IsFalling();
 }

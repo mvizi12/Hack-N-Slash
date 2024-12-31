@@ -17,6 +17,8 @@ class HACK_N_SLASH_API UPlayerAnimInstance : public UAnimInstance
 	//Unreal doesn't suggest private variables be exposed to blueprint
 	private:
 		APawn* playerPawn;
+		ACharacter* characterRef;
+		class UCharacterMovementComponent* movementComp;
 
 		void UpdateVelocity();
 
@@ -30,6 +32,9 @@ class HACK_N_SLASH_API UPlayerAnimInstance : public UAnimInstance
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		float currentAngle {0.0f};
 
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		bool bIsFalling {false};
+
 		UFUNCTION(BlueprintCallable)
 		void UpdatePlayerPawn();
 
@@ -38,5 +43,8 @@ class HACK_N_SLASH_API UPlayerAnimInstance : public UAnimInstance
 
 		UFUNCTION(BlueprintCallable)
 		void UpdateCurrentSpeed();
+
+		UFUNCTION(BlueprintCallable)
+		void UpdateIsFalling();
 	
 };
