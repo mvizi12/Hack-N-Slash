@@ -4,26 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
 #include "MainPlayer.generated.h"
 
 UCLASS()
-class HACK_N_SLASH_API AMainPlayer : public ACharacter
+class HACK_N_SLASH_API AMainPlayer : public ACharacter, public IMainPlayerI, public IFighter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	AMainPlayer();
-
 protected:
-	// Called when the game starts or when spawned
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsInvincible {false};
+	
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+public:
+	AMainPlayer();
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	/***************Interface Functions - Fighter***************/
+	virtual bool IsInvincible() override;
 
 };
