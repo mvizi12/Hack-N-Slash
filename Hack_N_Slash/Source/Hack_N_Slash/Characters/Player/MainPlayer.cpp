@@ -27,11 +27,33 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 }
 
 /************************************Private Functions************************************/
+void AMainPlayer::NegateInvincibility()
+{
+	bIsInvincible = !bIsInvincible;
+}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
-bool AMainPlayer::IsInvincible() {return bIsInvincible;}
+EState AMainPlayer::GetState() const {return currentState;}
+
+bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const
+{
+	return states.Contains(currentState);
+}
+
+bool AMainPlayer::IsInvincible() const {return bIsInvincible;}
+
+void AMainPlayer::SetState(EState state) {currentState = state;}
+
+void AMainPlayer::SetInvincible(bool invincible, bool indefinite, float duration = 0.0f)
+{
+	bIsInvincible = invincible;
+	if (indefinite) {return;}
+
+	FTimerHandle InvincibleTimerHandle;
+	GetWorldTimerManager().SetTimer(InvincibleTimerHandle, this, &AMainPlayer::NegateInvincibility, duration, false);
+}
 /************************************Public Functions************************************/

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\EState.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
 #include "MainPlayer.generated.h"
@@ -13,9 +14,15 @@ class HACK_N_SLASH_API AMainPlayer : public ACharacter, public IMainPlayerI, pub
 {
 	GENERATED_BODY()
 
+private:
+	void NegateInvincibility();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsInvincible {false};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TEnumAsByte<EState> currentState {EState::None};
 	
 	virtual void BeginPlay() override;
 
@@ -25,6 +32,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	/***************Interface Functions - Fighter***************/
-	virtual bool IsInvincible() override;
+	virtual EState GetState() const override;
+	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
+	virtual bool IsInvincible() const override;
+	virtual void SetState(EState) override;
+	virtual void SetInvincible(bool, bool, float) override;
 
 };
