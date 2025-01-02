@@ -22,7 +22,7 @@ protected:
 	bool bIsInvincible {false};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TEnumAsByte<EState> currentState {EState::None};
+	TEnumAsByte<EState> currentState {EState::NoneState};
 	
 	virtual void BeginPlay() override;
 

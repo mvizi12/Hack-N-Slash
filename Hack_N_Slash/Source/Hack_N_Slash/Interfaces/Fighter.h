@@ -23,7 +23,7 @@ class HACK_N_SLASH_API IFighter
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual EState GetState() const {return EState::None;}
+	virtual EState GetState() const {return EState::NoneState;}
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const {return false;}
 	virtual bool IsInvincible() const {return false;}
 	virtual void SetState(EState) {}

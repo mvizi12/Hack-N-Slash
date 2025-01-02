@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Combat/LockOnOffComponent.h"
+#include "LockOnOffComponent.h"
 
 // Sets default values for this component's properties
 ULockOnOffComponent::ULockOnOffComponent()

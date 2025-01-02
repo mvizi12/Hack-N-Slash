@@ -7,7 +7,7 @@
 UENUM(BlueprintType)
  enum EStat
  {
-	None UMETA(DisplayName = "None Selected"),
+	NoneStat UMETA(DisplayName = "None"),
 	Health UMETA(DisplayName = "Current Health"),
 	MaxHealth UMETA(DisplayName = "Max Health"),
 	Stamina UMETA(DisplayName = "Current Stamina"),

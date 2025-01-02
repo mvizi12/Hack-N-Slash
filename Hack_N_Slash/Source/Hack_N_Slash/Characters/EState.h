@@ -7,7 +7,7 @@
 UENUM(BlueprintType)
  enum EState
  {
-	None UMETA(DisplayName = "None"),
+	NoneState UMETA(DisplayName = "None"),
 	Attack UMETA(DisplayName = "Attack"),
 	Death UMETA(DisplayName = "Death"),
 	Dodge UMETA(DisplayName = "Dodge")

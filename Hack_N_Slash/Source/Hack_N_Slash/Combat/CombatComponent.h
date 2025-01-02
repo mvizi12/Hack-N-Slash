@@ -6,23 +6,54 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UCombatComponent();
+private:
+	ACharacter* characterRef;
+	class IMainPlayerI* iPlayerRef;
+	class IFighter* iFighterRef;
+
+	bool bSavedLightAttack {false};
+
+	bool CanAttack();
 
 protected:
-	// Called when the game starts
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> lightMeleeMontages;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> heavyMeleeMontages;
+
+	UPROPERTY(VisibleAnywhere)
+	int comboCounter {0};
+
+	UPROPERTY(EditDefaultsOnly)
+	float lightMeleeStaminaCost {5.0f};
+
+	UPROPERTY(EditDefaultsOnly)
+	float heavyMeleeStaminaCost {8.0f};
+
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+	UFUNCTION(BlueprintCallable)
+	void LightAttack();
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnAttackPerformedSignature OnAttackPerformedDelegate;
+
+	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	UFUNCTION(BlueprintCallable) //Public so animations can call it
+	void HandleResetAttack();
+
+	UFUNCTION(BlueprintCallable) //Public so animations can call it
+	void ResetCombo();
 };
