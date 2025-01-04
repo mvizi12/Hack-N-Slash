@@ -22,8 +22,12 @@ private:
 	bool bSavedLightAttack {false};
 
 	bool CanAttack();
+	void PerformLightAttack();
 
 protected:
+	UPROPERTY(EditAnywhere)
+	bool bDebugMode;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> lightMeleeMontages;
 
@@ -56,4 +60,6 @@ public:
 
 	UFUNCTION(BlueprintCallable) //Public so animations can call it
 	void ResetCombo();
+	
+	void SaveLightAttack();
 };

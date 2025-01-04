@@ -4,6 +4,7 @@
 #include "CombatComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Engine/Engine.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
 
@@ -35,6 +36,17 @@ bool UCombatComponent::CanAttack()
 	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates);
 }
 
+void UCombatComponent::PerformLightAttack()
+{
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Light Attack"));}
+	iFighterRef->SetState(EState::Attack);
+	characterRef->PlayAnimMontage(lightMeleeMontages[comboCounter]);
+	++comboCounter;
+	int maxCombo {lightMeleeMontages.Num()};
+	comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
+	OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
+}
+
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
@@ -49,19 +61,13 @@ void UCombatComponent::LightAttack()
 	{
 		//Save the input to buffer the next attack
 		bSavedLightAttack = true;
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Saved Light Attack"));}
 	}
 	else
 	{
 		//Else Attempt to attack
-		if (CanAttack())
-		{
-			iFighterRef->SetState(EState::Attack);
-			characterRef->PlayAnimMontage(lightMeleeMontages[comboCounter]);
-			++comboCounter;
-			int maxCombo {lightMeleeMontages.Num()};
-			comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
-			OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
-		}
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
+		if (CanAttack()) {PerformLightAttack();}
 	}
 }
 /************************************Protected Functions************************************/
@@ -75,5 +81,19 @@ void UCombatComponent::HandleResetAttack()
 void UCombatComponent::ResetCombo()
 {
 	comboCounter = 0;
+}
+
+void UCombatComponent::SaveLightAttack()
+{
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Calling SaveLightAttack"));}
+	if (!bSavedLightAttack) {return;}
+	bSavedLightAttack = false;
+
+	//Decides wether or not the state should be reset
+	//In large combat systems there's gonna be times when a variable is set even though you don't want it
+	//So this serves as an extra layer of insurance
+	TArray<EState> states = {EState::Attack};
+	if (iFighterRef->IsCurrentStateEqualToAny(states)) {iFighterRef->SetState(EState::NoneState);}
+	LightAttack();
 }
 /************************************Public Functions************************************/
