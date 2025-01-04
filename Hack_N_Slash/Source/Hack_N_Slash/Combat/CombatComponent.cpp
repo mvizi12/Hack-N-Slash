@@ -3,6 +3,7 @@
 
 #include "CombatComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/Engine.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
@@ -20,6 +21,7 @@ void UCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	characterRef = GetOwner<ACharacter>();
+	movementComp = characterRef->GetCharacterMovement();
 	iPlayerRef = Cast<IMainPlayerI>(characterRef);
 	iFighterRef = Cast<IFighter>(characterRef);
 }
@@ -33,7 +35,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 bool UCombatComponent::CanAttack()
 {
     TArray<EState> invalidAttackStates = {EState::Attack, EState::Death, EState::Dodge}; //States the player isn't allowed to attack
-	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates);
+	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();
 }
 
 void UCombatComponent::PerformAttack(bool light)
@@ -68,6 +70,8 @@ void UCombatComponent::LightAttack()
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
 
+	bSavedHeavyAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining heavy with light attacks
+
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
 	{
@@ -88,6 +92,8 @@ void UCombatComponent::HeavyAttack()
 	if (heavyMeleeMontages.IsEmpty()) {return;}
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(heavyMeleeStaminaCost)) {return;}
+
+	bSavedLightAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining heavy with light attacks
 
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking

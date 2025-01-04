@@ -12,17 +12,18 @@ class HACK_N_SLASH_API UPlayerActionsComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UPlayerActionsComponent();
+private:
+	ACharacter* characterRef;
+	class IMainPlayerI* iPlayerRef;
+	class IFighter* iFighterRef;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UFUNCTION(BlueprintCallable)
+	void Jump();
 
-		
+public:	
+	UPlayerActionsComponent();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

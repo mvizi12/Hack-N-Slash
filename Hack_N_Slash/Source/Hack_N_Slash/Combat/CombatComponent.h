@@ -16,6 +16,7 @@ class HACK_N_SLASH_API UCombatComponent : public UActorComponent
 
 private:
 	ACharacter* characterRef;
+	class UCharacterMovementComponent* movementComp;
 	class IMainPlayerI* iPlayerRef;
 	class IFighter* iFighterRef;
 
