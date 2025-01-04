@@ -12,17 +12,24 @@ class HACK_N_SLASH_API ULockOnOffComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	ULockOnOffComponent();
-
 protected:
-	// Called when the game starts
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bLockedOn {false};
+
+	UPROPERTY(EditDefaultsOnly, meta = (ToolTip = "Positive number will tilt the camera up when locked on and negative number will tilt down"))
+	float lockedOnCameraTiltZ {0.0f};
+
+	UPROPERTY(EditDefaultsOnly, meta = (ToolTip = "Max distance the player can be from target to lock on"))
+	double breakDistance {1000.0f};
+
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+	UFUNCTION(BlueprintCallable)
+	void ToggleLockOnOff(float radius, FVector cameraOffset);
+
+public:
+	ULockOnOffComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	bool GetLockedOn();		
 };
