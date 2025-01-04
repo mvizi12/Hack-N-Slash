@@ -36,15 +36,27 @@ bool UCombatComponent::CanAttack()
 	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates);
 }
 
-void UCombatComponent::PerformLightAttack()
+void UCombatComponent::PerformAttack(bool light)
 {
-	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Light Attack"));}
 	iFighterRef->SetState(EState::Attack);
-	characterRef->PlayAnimMontage(lightMeleeMontages[comboCounter]);
-	++comboCounter;
-	int maxCombo {lightMeleeMontages.Num()};
-	comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
-	OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
+	if (light)
+	{
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Light Attack"));}
+		characterRef->PlayAnimMontage(lightMeleeMontages[comboCounter]);
+		++comboCounter;
+		int maxCombo {lightMeleeMontages.Num()};
+		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
+		OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
+	}
+	else
+	{
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Heavy Attack"));}
+		characterRef->PlayAnimMontage(heavyMeleeMontages[comboCounter]);
+		++comboCounter;
+		int maxCombo {heavyMeleeMontages.Num()};
+		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
+		OnAttackPerformedDelegate.Broadcast(heavyMeleeStaminaCost);
+	}
 }
 
 /************************************Private Functions************************************/
@@ -67,7 +79,28 @@ void UCombatComponent::LightAttack()
 	{
 		//Else Attempt to attack
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
-		if (CanAttack()) {PerformLightAttack();}
+		if (CanAttack()) {PerformAttack(true);}
+	}
+}
+
+void UCombatComponent::HeavyAttack()
+{
+	if (heavyMeleeMontages.IsEmpty()) {return;}
+	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
+	if (!iPlayerRef->HasEnoughStamina(heavyMeleeStaminaCost)) {return;}
+
+	TArray<EState> states = {EState::Attack};
+	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
+	{
+		//Save the input to buffer the next attack
+		bSavedHeavyAttack = true;
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Saved Heavy Attack"));}
+	}
+	else
+	{
+		//Else Attempt to attack
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Heavy Attack"));}
+		if (CanAttack()) {PerformAttack(false);}
 	}
 }
 /************************************Protected Functions************************************/
@@ -95,5 +128,19 @@ void UCombatComponent::SaveLightAttack()
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) {iFighterRef->SetState(EState::NoneState);}
 	LightAttack();
+}
+
+void UCombatComponent::SaveHeavyAttack()
+{
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Calling SaveHeavyAttack"));}
+	if (!bSavedHeavyAttack) {return;}
+	bSavedHeavyAttack = false;
+
+	//Decides wether or not the state should be reset
+	//In large combat systems there's gonna be times when a variable is set even though you don't want it
+	//So this serves as an extra layer of insurance
+	TArray<EState> states = {EState::Attack};
+	if (iFighterRef->IsCurrentStateEqualToAny(states)) {iFighterRef->SetState(EState::NoneState);}
+	HeavyAttack();
 }
 /************************************Public Functions************************************/

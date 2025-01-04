@@ -20,9 +20,10 @@ private:
 	class IFighter* iFighterRef;
 
 	bool bSavedLightAttack {false};
+	bool bSavedHeavyAttack {false};
 
 	bool CanAttack();
-	void PerformLightAttack();
+	void PerformAttack(bool);
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -48,6 +49,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void LightAttack();
 
+	UFUNCTION(BlueprintCallable)
+	void HeavyAttack();
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackPerformedSignature OnAttackPerformedDelegate;
@@ -62,4 +66,6 @@ public:
 	void ResetCombo();
 	
 	void SaveLightAttack();
+
+	void SaveHeavyAttack();
 };
