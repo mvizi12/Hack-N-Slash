@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
- enum EState
+ enum class EState : uint8
  {
 	NoneState UMETA(DisplayName = "None"),
 	Attack UMETA(DisplayName = "Attack"),

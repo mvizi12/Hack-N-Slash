@@ -66,7 +66,7 @@ public:
 	UFUNCTION(BlueprintCallable) //Public so animations can call it
 	void ResetCombo();
 	
-	void SaveLightAttack();
+	void SaveLightAttack(); //Public so animations can call it
 
-	void SaveHeavyAttack();
+	void SaveHeavyAttack(); //Public so animations can call it
 };

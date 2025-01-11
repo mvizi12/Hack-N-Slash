@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\EState.h"
 #include "PlayerActionsComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnDodgeSignature, UPlayerActionsComponent, OnDodgeDelegate, float, cost);
@@ -23,6 +24,7 @@ private:
 
 	bool CanDodge();
 	void PerformDodge();
+	FRotator GetDesiredRotation();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -30,6 +32,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* dodgeMontage;
+
+	UPROPERTY(EditAnywhere)
+	TArray<EState> dodgeCancelableStates {EState::Attack};
 
 	UPROPERTY(EditAnywhere)
 	float staminaCostDodge {5.0f};
@@ -48,4 +53,6 @@ public:
 
 	UPlayerActionsComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void SaveDodge(); //Public so animations can call it
 };
