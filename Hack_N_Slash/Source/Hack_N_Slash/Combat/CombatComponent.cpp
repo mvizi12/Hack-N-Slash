@@ -70,7 +70,8 @@ void UCombatComponent::LightAttack()
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
 
-	bSavedHeavyAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining heavy with light attacks
+	bSavedHeavyAttack = false; //Bookeeping since we're performing a light attack; necessary for chaining heavy with light attacks
+	OnResetDodgeBufferDelegate.Broadcast();
 
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
@@ -93,7 +94,8 @@ void UCombatComponent::HeavyAttack()
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(heavyMeleeStaminaCost)) {return;}
 
-	bSavedLightAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining heavy with light attacks
+	bSavedLightAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining light with heavy attacks
+	OnResetDodgeBufferDelegate.Broadcast();
 
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
@@ -108,6 +110,12 @@ void UCombatComponent::HeavyAttack()
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Heavy Attack"));}
 		if (CanAttack()) {PerformAttack(false);}
 	}
+}
+
+void UCombatComponent::ResetAttackBuffers()
+{
+	bSavedLightAttack = false;
+	bSavedHeavyAttack = false;
 }
 /************************************Protected Functions************************************/
 

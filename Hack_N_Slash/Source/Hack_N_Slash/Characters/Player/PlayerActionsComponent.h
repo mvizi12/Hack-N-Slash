@@ -8,6 +8,7 @@
 #include "PlayerActionsComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnDodgeSignature, UPlayerActionsComponent, OnDodgeDelegate, float, cost);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetAttackBuffersSignature, UPlayerActionsComponent, OnResetAttackBuffersDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UPlayerActionsComponent : public UActorComponent
@@ -47,9 +48,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void Jump();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetDodgeBuffer(); //For other to call via an event
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDodgeSignature OnDodgeDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnResetAttackBuffersSignature OnResetAttackBuffersDelegate;
 
 	UPlayerActionsComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

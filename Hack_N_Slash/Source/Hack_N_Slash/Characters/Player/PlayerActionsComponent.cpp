@@ -71,6 +71,8 @@ void UPlayerActionsComponent::Dodge()
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(staminaCostDodge)) {return;}
 
+	OnResetAttackBuffersDelegate.Broadcast();
+
 	if (iFighterRef->IsCurrentStateEqualToAny(dodgeCancelableStates))
 	{
 		bSavedDodge = true; //Saves the dodge input if trying to dodge while in any of the above states
@@ -91,6 +93,11 @@ void UPlayerActionsComponent::Jump()
 	TArray<EState> states = {EState::NoneState};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) {characterRef->Jump();}
 	else {characterRef->StopJumping();}
+}
+
+void UPlayerActionsComponent::ResetDodgeBuffer()
+{
+	bSavedDodge = false;
 }
 /************************************Protected Functions************************************/
 

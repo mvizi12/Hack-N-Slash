@@ -7,7 +7,7 @@
 #include "CombatComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
-
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetDodgeBufferSignature, UCombatComponent, OnResetDodgeBufferDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
@@ -53,9 +53,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void HeavyAttack();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetAttackBuffers();
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackPerformedSignature OnAttackPerformedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnResetDodgeBufferSignature OnResetDodgeBufferDelegate;
 
 	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
