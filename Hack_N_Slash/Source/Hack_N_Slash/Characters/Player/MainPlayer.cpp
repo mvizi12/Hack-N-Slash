@@ -48,7 +48,7 @@ bool AMainPlayer::IsInvincible() const {return bIsInvincible;}
 
 void AMainPlayer::SetState(EState state) {currentState = state;}
 
-void AMainPlayer::SetInvincible(bool invincible, bool indefinite, float duration = 0.0f)
+void AMainPlayer::SetInvincibility(bool invincible, bool indefinite, float duration = 0.0f)
 {
 	bIsInvincible = invincible;
 	if (indefinite) {return;}

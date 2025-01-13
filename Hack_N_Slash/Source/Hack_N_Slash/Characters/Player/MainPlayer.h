@@ -36,6 +36,6 @@ public:
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
 	virtual bool IsInvincible() const override;
 	virtual void SetState(EState) override;
-	virtual void SetInvincible(bool, bool, float) override;
+	virtual void SetInvincibility(bool, bool, float) override;
 
 };
