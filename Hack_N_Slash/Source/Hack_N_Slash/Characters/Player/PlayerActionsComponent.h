@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* dodgeMontage;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* doubleJumpMontage;
+
 	UPROPERTY(EditAnywhere)
 	TArray<EState> dodgeCancelableStates {EState::Attack};
 

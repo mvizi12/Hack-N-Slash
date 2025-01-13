@@ -89,10 +89,17 @@ void UPlayerActionsComponent::Dodge()
 
 void UPlayerActionsComponent::Jump()
 {
-	if (iPlayerRef == nullptr || iFighterRef == nullptr) {return;}
+	if (iPlayerRef == nullptr || iFighterRef == nullptr || movementComp == nullptr) {return;}
 	TArray<EState> states = {EState::NoneState};
-	if (iFighterRef->IsCurrentStateEqualToAny(states)) {characterRef->Jump();}
-	else {characterRef->StopJumping();}
+	if (!iFighterRef->IsCurrentStateEqualToAny(states)) //If character isn't in the "None" state, stop jumping
+	{
+		characterRef->StopJumping();
+		return;
+	}
+
+	characterRef->Jump();
+	//Perform Double Jump animation if already in the air and the character still has jumps left
+	if (movementComp->IsFalling() && characterRef->JumpCurrentCount < characterRef->JumpMaxCount) {characterRef->PlayAnimMontage(doubleJumpMontage);}
 }
 
 void UPlayerActionsComponent::ResetDodgeBuffer()
