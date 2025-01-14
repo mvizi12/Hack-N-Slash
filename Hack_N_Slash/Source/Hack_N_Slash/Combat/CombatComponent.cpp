@@ -86,7 +86,6 @@ void UCombatComponent::PerformComboExtender()
 	iFighterRef->SetState(EState::Attack);
 	characterRef->PlayAnimMontage(comboExtenderMontage);
 	OnAttackPerformedDelegate.Broadcast(heavyMeleeStaminaCost);
-	comboStarterIndex = 0;
 }
 
 void UCombatComponent::PerformComboStarter()
@@ -171,15 +170,15 @@ void UCombatComponent::ResetAttackBuffers()
 /************************************Public Functions************************************/
 void UCombatComponent::HandleResetAttack()
 {
-	iFighterRef->SetState(EState::NoneState);
-	bHeavyAttack = false;
-	bComboStarter = false;
-	comboStarterIndex = 0;
+	iFighterRef->SetState(EState::NoneState); //Needed
+	bHeavyAttack = false; //Extra insurance
 }
 
 void UCombatComponent::ResetCombo()
 {
-	comboCounter = 0;
+	bComboStarter = false; //Extra insurance
+	comboStarterIndex = 0; //Needed
+	comboCounter = 0; //Needed
 }
 
 void UCombatComponent::SaveLightAttack()
