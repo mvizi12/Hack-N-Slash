@@ -23,8 +23,13 @@ private:
 	bool bSavedLightAttack {false};
 	bool bSavedHeavyAttack {false};
 
+	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
+	bool bComboStarter {false}; //Flag to let the system know a combo was performed
+
 	bool CanAttack();
-	void PerformAttack(bool);
+	UAnimMontage* GetComboStarterAnimMontage();
+	void PerformAttack(bool); //Performs light or heavy attack
+	void PerformComboStarter();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -36,8 +41,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> heavyMeleeMontages;
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> comboStarterMontages;
+
 	UPROPERTY(VisibleAnywhere)
 	int comboCounter {0};
+
+	UPROPERTY(VisibleAnywhere)
+	int comboStarterIndex {0}; //Used for getting the right combo extender montage
 
 	UPROPERTY(EditDefaultsOnly)
 	float lightMeleeStaminaCost {5.0f};

@@ -38,6 +38,13 @@ bool UCombatComponent::CanAttack()
 	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();
 }
 
+UAnimMontage* UCombatComponent::GetComboStarterAnimMontage()
+{
+	int temp = comboCounter - 1; //The 1st combo starter montage will correlate with the 1st heavy attack ans so on
+	if (temp >= comboStarterMontages.Num()) {return nullptr;}
+    return comboStarterMontages[temp];
+}
+
 void UCombatComponent::PerformAttack(bool light)
 {
 	iFighterRef->SetState(EState::Attack);
@@ -61,6 +68,22 @@ void UCombatComponent::PerformAttack(bool light)
 	}
 }
 
+void UCombatComponent::PerformComboStarter()
+{
+	bHeavyAttack = false;
+	UAnimMontage* comboStarterMontage = GetComboStarterAnimMontage();
+	if (comboStarterMontage == nullptr)
+	{
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Combo Starter Anim Montage Invalid"));}
+		return;
+	}
+	bComboStarter = true;
+	comboStarterIndex = comboStarterMontages.IndexOfByKey(comboStarterMontage);
+	iFighterRef->SetState(EState::Attack);
+	characterRef->PlayAnimMontage(comboStarterMontage);
+	OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
+}
+
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
@@ -79,12 +102,14 @@ void UCombatComponent::LightAttack()
 		//Save the input to buffer the next attack
 		bSavedLightAttack = true;
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Saved Light Attack"));}
+		return;
 	}
-	else
+	//Else Attempt to attack
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
+	if (CanAttack())
 	{
-		//Else Attempt to attack
-		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
-		if (CanAttack()) {PerformAttack(true);}
+		if (!bHeavyAttack) {PerformAttack(true);}
+		else {PerformComboStarter();} //If a heavy attack was performed previosuly, this will be the start of a combo
 	}
 }
 
@@ -96,6 +121,7 @@ void UCombatComponent::HeavyAttack()
 
 	bSavedLightAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining light with heavy attacks
 	OnResetDodgeBufferDelegate.Broadcast();
+	bHeavyAttack = true;
 
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
@@ -123,6 +149,8 @@ void UCombatComponent::ResetAttackBuffers()
 void UCombatComponent::HandleResetAttack()
 {
 	iFighterRef->SetState(EState::NoneState);
+	bHeavyAttack = false;
+	bComboStarter = false;
 }
 
 void UCombatComponent::ResetCombo()
