@@ -27,8 +27,12 @@ private:
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
 
 	bool CanAttack();
+
+	//UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1) should stop these 2 functions from returning nullptr
+	UAnimMontage* GetComboExtenderAnimMontage();
 	UAnimMontage* GetComboStarterAnimMontage();
 	void PerformAttack(bool); //Performs light or heavy attack
+	void PerformComboExtender();
 	void PerformComboStarter();
 
 protected:
@@ -43,6 +47,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> comboStarterMontages;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> comboExtenderMontages;
 
 	UPROPERTY(VisibleAnywhere)
 	int comboCounter {0};

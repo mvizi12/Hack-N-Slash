@@ -38,6 +38,12 @@ bool UCombatComponent::CanAttack()
 	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();
 }
 
+UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
+{
+	if (comboStarterIndex >= comboExtenderMontages.Num()) {return nullptr;}
+    return comboExtenderMontages[comboStarterIndex];
+}
+
 UAnimMontage* UCombatComponent::GetComboStarterAnimMontage()
 {
 	int temp = comboCounter - 1; //The 1st combo starter montage will correlate with the 1st heavy attack ans so on
@@ -66,6 +72,21 @@ void UCombatComponent::PerformAttack(bool light)
 		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
 		OnAttackPerformedDelegate.Broadcast(heavyMeleeStaminaCost);
 	}
+}
+
+void UCombatComponent::PerformComboExtender()
+{
+	bComboStarter = false;
+	UAnimMontage* comboExtenderMontage = GetComboExtenderAnimMontage();
+	if (comboExtenderMontage == nullptr)
+	{
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Combo Extender Anim Montage Invalid"));}
+		return;
+	}
+	iFighterRef->SetState(EState::Attack);
+	characterRef->PlayAnimMontage(comboExtenderMontage);
+	OnAttackPerformedDelegate.Broadcast(heavyMeleeStaminaCost);
+	comboStarterIndex = 0;
 }
 
 void UCombatComponent::PerformComboStarter()
@@ -129,12 +150,14 @@ void UCombatComponent::HeavyAttack()
 		//Save the input to buffer the next attack
 		bSavedHeavyAttack = true;
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Saved Heavy Attack"));}
+		return;
 	}
-	else
+	//Else Attempt to attack
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Heavy Attack"));}
+	if (CanAttack())
 	{
-		//Else Attempt to attack
-		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Heavy Attack"));}
-		if (CanAttack()) {PerformAttack(false);}
+		if (!bComboStarter) {PerformAttack(false);}
+		else {PerformComboExtender();}
 	}
 }
 
@@ -151,6 +174,7 @@ void UCombatComponent::HandleResetAttack()
 	iFighterRef->SetState(EState::NoneState);
 	bHeavyAttack = false;
 	bComboStarter = false;
+	comboStarterIndex = 0;
 }
 
 void UCombatComponent::ResetCombo()
