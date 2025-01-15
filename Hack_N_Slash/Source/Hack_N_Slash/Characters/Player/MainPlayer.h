@@ -16,6 +16,7 @@ class HACK_N_SLASH_API AMainPlayer : public ACharacter, public IMainPlayerI, pub
 
 private:
 	void NegateInvincibility();
+	class UStatsComponent* statsComp;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -33,6 +34,7 @@ public:
 	
 	/***************Interface Functions - Fighter***************/
 	virtual EState GetState() const override;
+	virtual float GetStrength() const override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
 	virtual bool IsInvincible() const override;
 	virtual void SetState(EState) override;

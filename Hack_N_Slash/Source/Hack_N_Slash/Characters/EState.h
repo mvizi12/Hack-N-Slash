@@ -10,5 +10,6 @@ UENUM(BlueprintType)
 	NoneState UMETA(DisplayName = "None"),
 	Attack UMETA(DisplayName = "Attack"),
 	Death UMETA(DisplayName = "Death"),
-	Dodge UMETA(DisplayName = "Dodge")
+	Dodge UMETA(DisplayName = "Dodge"),
+	HitStun UMETA(DisplayName = "HitStun")
  };

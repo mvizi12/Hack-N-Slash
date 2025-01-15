@@ -2,6 +2,7 @@
 
 
 #include "StatsComponent.h"
+#include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
@@ -17,6 +18,7 @@ UStatsComponent::UStatsComponent()
 void UStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	characterRef = GetOwner<ACharacter>();
 }
 
 void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -25,6 +27,28 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 }
 
 /************************************Private Functions************************************/
+UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) const
+{
+    switch (damageType)
+	{
+	case EDamageType::NoneDMGType:
+		return nullptr;
+	case EDamageType::Back:
+		return backHitMontage;
+	case EDamageType::KnockBack:
+		return kbHitMontage;
+	case EDamageType::KnockDown:
+		return kdHitMontage;
+	case EDamageType::Left:
+		return leftHitMontage;
+	case EDamageType::Middle:
+		return middleHitMontage;
+	case EDamageType::Right:
+		return rightHitMontage;
+	default:
+		return nullptr;
+	}
+}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
@@ -40,7 +64,7 @@ float UStatsComponent::GetStatPercentage(EStat current, EStat max) const
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
-void UStatsComponent::ReduceHealth(float damage, AActor *opponent)
+void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType damageType)
 {
 	IFighter* iFighterRef {GetOwner<IFighter>()};
 	if (iFighterRef == nullptr) {return;}
@@ -52,7 +76,21 @@ void UStatsComponent::ReduceHealth(float damage, AActor *opponent)
 
 	OnHealthPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::MaxHealth));
 
-	if (stats[EStat::Health] <= 0) {OnZeroHealthUpdateDelegate.Broadcast();} //If health hits zero
+	if (stats[EStat::Health] <= 0) //Play death montage
+	{
+		OnZeroHealthUpdateDelegate.Broadcast();
+		iFighterRef->SetState(EState::Death);
+		if (characterRef == nullptr) {return;}
+		characterRef->PlayAnimMontage(deathMontage);
+	}
+	else //Play hurt montage
+	{
+		UAnimMontage* hurtMontage = GetHitReactionMontage(damageType);
+		iFighterRef->SetState(EState::HitStun);
+		if (hurtMontage == nullptr) {return;}
+		if (characterRef == nullptr) {return;}
+		characterRef->PlayAnimMontage(hurtMontage);
+	}
 }
 
 void UStatsComponent::ReduceStamina(float amount)

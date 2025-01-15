@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\EDamageType.h"
 #include "EStat.h"
 #include "StatsComponent.generated.h"
 
@@ -17,6 +18,10 @@ class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+private:
+	ACharacter* characterRef;
+	UAnimMontage* GetHitReactionMontage(EDamageType) const;
+
 protected:
 	virtual void BeginPlay() override;\
 
@@ -28,6 +33,27 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	double staminaRegenRate {10.0};
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* deathMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* backHitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* kbHitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* kdHitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* leftHitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* middleHitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* rightHitMontage;
 
 	UFUNCTION()
 	void EnableStaminaRegen();
@@ -52,7 +78,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void ReduceHealth(float damage, AActor* opponent);
+	void ReduceHealth(float damage, AActor* opponent, EDamageType damageType);
 
 	UFUNCTION(BlueprintCallable)
 	void ReduceStamina(float amount);

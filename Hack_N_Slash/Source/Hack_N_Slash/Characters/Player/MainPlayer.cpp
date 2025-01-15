@@ -2,6 +2,7 @@
 
 
 #include "MainPlayer.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -13,6 +14,8 @@ AMainPlayer::AMainPlayer()
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	statsComp = FindComponentByClass<UStatsComponent>();
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -38,6 +41,12 @@ void AMainPlayer::NegateInvincibility()
 
 /************************************Public Functions************************************/
 EState AMainPlayer::GetState() const {return currentState;}
+
+float AMainPlayer::GetStrength() const
+{
+	if (statsComp == nullptr) {return 0.0f;}
+	return statsComp->stats[EStat::Strength];
+}
 
 bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const
 {

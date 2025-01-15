@@ -171,6 +171,8 @@ void UCombatComponent::ResetAttackBuffers()
 void UCombatComponent::HandleResetAttack()
 {
 	iFighterRef->SetState(EState::NoneState); //Needed
+	bSavedLightAttack = false;
+	bSavedHeavyAttack = false;
 	bHeavyAttack = false; //Extra insurance
 }
 

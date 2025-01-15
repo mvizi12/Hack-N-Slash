@@ -6,23 +6,33 @@
 #include "Components/ActorComponent.h"
 #include "TraceComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_ThreeParams(FOnReportDamageSignature, UTraceComponent, OnReportDamageDelegate, AActor*, damagedActor, float, damage, FVector, eventLocation);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UTraceComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UTraceComponent();
+private:
+	AActor* ownerRef; //Reference to the owner of this component
+	TArray<FHitResult> allHits;
+
+	void GetReferences();
+	void HandleDamage(TArray<FHitResult>&, float);
 
 protected:
-	// Called when the game starts
+	UPROPERTY(EditAnywhere)
+	bool bDebugMode;
+
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnReportDamageSignature OnReportDamageDelegate;
 
-		
+	void WeaponTrace(float, float, float);
+
+	UTraceComponent();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };
