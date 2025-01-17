@@ -36,7 +36,7 @@ void UTraceComponent::GetReferences()
 	ownerRef = GetOwner();
 }
 
-void UTraceComponent::HandleDamage(TArray<FHitResult> &outHits, float damage)
+void UTraceComponent::HandleDamage(TSubclassOf<UDamageTypeMain> damageType, TArray<FHitResult> &outHits, float damage)
 {
 	IFighter* iFighterRef {Cast<IFighter>(ownerRef)};
 	if (iFighterRef == nullptr) {return;}
@@ -46,9 +46,9 @@ void UTraceComponent::HandleDamage(TArray<FHitResult> &outHits, float damage)
 	{
 		AActor* targetActor {hitResult.GetActor()};
 		if (targetActor == nullptr) {continue;}
-		//UGameplayStatics::ApplyDamage(targetActor, damage, ownerRef->GetInstigatorController(), ownerRef);
-		//FDamageEvent Event(damageType);
-		//targetActor->TakeDamage(10.0f, Event, ownerRef->GetInstigatorController(), ownerRef);
+		UGameplayStatics::ApplyDamage(targetActor, damage, ownerRef->GetInstigatorController(), ownerRef, damageType);
+		//FDamageEvent Event;
+		//targetActor->TakeDamage(damage, Event, ownerRef->GetInstigatorController(), ownerRef);
 		OnReportDamageDelegate.Broadcast(targetActor, damage, targetActor->GetActorLocation());
 	}
 }
@@ -58,7 +58,7 @@ void UTraceComponent::HandleDamage(TArray<FHitResult> &outHits, float damage)
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
-void UTraceComponent::WeaponTrace(float traceDistance, float traceRadius, float damage)
+void UTraceComponent::WeaponTrace(TSubclassOf<UDamageTypeMain> damageType, float traceDistance, float traceRadius, float damage)
 {
 	TArray<FHitResult> outHits;
 	FVector startLocation = ownerRef->GetActorLocation();
@@ -69,6 +69,6 @@ void UTraceComponent::WeaponTrace(float traceDistance, float traceRadius, float 
 	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, actorsToIgnore, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
 
 	if (outHits.Num() <= 0) {return;}
-	HandleDamage(outHits, damage);
+	HandleDamage(damageType, outHits, damage);
 }
 /************************************Public Functions************************************/

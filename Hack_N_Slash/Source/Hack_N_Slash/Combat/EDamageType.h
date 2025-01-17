@@ -7,7 +7,7 @@
 UENUM(BlueprintType)
  enum EDamageType
  {
-	NoneDMGType UMETA(DisplayName = "None"),
+	DefaultDMGType UMETA(DisplayName = "Default"),
 	Back UMETA(DisplayName = "Back"),
 	KnockBack UMETA(DisplayName = "Knockback"),
 	KnockDown UMETA(DisplayName = "Knockdown"),

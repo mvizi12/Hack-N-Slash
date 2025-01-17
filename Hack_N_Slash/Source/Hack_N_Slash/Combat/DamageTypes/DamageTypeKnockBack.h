@@ -13,5 +13,10 @@ UCLASS()
 class HACK_N_SLASH_API UDamageTypeKnockBack : public UDamageTypeMain
 {
 	GENERATED_BODY()
-	
+
+public:
+	UDamageTypeKnockBack()
+	{
+		damageType = EDamageType::KnockBack;
+	}
 };

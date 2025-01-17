@@ -13,4 +13,10 @@ UCLASS()
 class HACK_N_SLASH_API UDamageTypeRight : public UDamageTypeMain
 {
 	GENERATED_BODY()
+
+public:
+	UDamageTypeRight()
+	{
+		damageType = EDamageType::Right;
+	}
 };

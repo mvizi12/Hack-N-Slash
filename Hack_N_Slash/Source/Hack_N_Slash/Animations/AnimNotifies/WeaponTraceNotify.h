@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\DamageTypes\DamageTypeMain.h"
 #include "WeaponTraceNotify.generated.h"
 
 /**
@@ -15,6 +16,9 @@ class HACK_N_SLASH_API UWeaponTraceNotify : public UAnimNotify
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, Category = "Notify")
+	TSubclassOf<UDamageTypeMain> damageType;
+
 	UPROPERTY(EditAnywhere, Category = "Notify")
 	float traceDistance;
 	

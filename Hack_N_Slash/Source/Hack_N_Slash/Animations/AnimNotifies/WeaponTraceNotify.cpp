@@ -9,5 +9,5 @@ void UWeaponTraceNotify::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceB
     UTraceComponent* traceComp {MeshComp->GetOwner()->FindComponentByClass<UTraceComponent>()};
 	if (!IsValid(traceComp)) { return; }
 
-    traceComp->WeaponTrace(traceDistance, traceRadius, damage);
+    traceComp->WeaponTrace(damageType, traceDistance, traceRadius, damage);
 }

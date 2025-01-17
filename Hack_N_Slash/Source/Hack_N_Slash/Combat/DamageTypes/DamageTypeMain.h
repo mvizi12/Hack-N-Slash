@@ -16,6 +16,9 @@ class HACK_N_SLASH_API UDamageTypeMain : public UDamageType
 	GENERATED_BODY()
 
 public:
-	TEnumAsByte<EDamageType> damageType {EDamageType::NoneDMGType};
+	TEnumAsByte<EDamageType> damageType {EDamageType::DefaultDMGType};
+
+	UFUNCTION(BlueprintCallable)
+	EDamageType GetDamageType() {return damageType;}
 	
 };

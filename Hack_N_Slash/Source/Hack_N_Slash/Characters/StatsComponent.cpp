@@ -31,19 +31,26 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 {
     switch (damageType)
 	{
-	case EDamageType::NoneDMGType:
+	case EDamageType::DefaultDMGType:
+		UE_LOG(LogTemp, Warning, TEXT("Default"));
 		return nullptr;
 	case EDamageType::Back:
+		UE_LOG(LogTemp, Warning, TEXT("Back"));
 		return backHitMontage;
 	case EDamageType::KnockBack:
+		UE_LOG(LogTemp, Warning, TEXT("Knockback"));
 		return kbHitMontage;
 	case EDamageType::KnockDown:
+		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
 		return kdHitMontage;
 	case EDamageType::Left:
+		UE_LOG(LogTemp, Warning, TEXT("Left"));
 		return leftHitMontage;
 	case EDamageType::Middle:
+		UE_LOG(LogTemp, Warning, TEXT("Middle"));
 		return middleHitMontage;
 	case EDamageType::Right:
+		UE_LOG(LogTemp, Warning, TEXT("Right"));
 		return rightHitMontage;
 	default:
 		return nullptr;

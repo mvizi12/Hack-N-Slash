@@ -13,5 +13,9 @@ UCLASS()
 class HACK_N_SLASH_API UDamageTypeMiddle : public UDamageTypeMain
 {
 	GENERATED_BODY()
-	
+public:
+	UDamageTypeMiddle()
+	{
+		damageType = EDamageType::Middle;
+	}
 };
