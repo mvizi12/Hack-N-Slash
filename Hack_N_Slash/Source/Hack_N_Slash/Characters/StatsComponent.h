@@ -38,9 +38,6 @@ protected:
 	UAnimMontage* deathMontage;
 
 	UPROPERTY(EditAnywhere)
-	UAnimMontage* backHitMontage;
-
-	UPROPERTY(EditAnywhere)
 	UAnimMontage* kbHitMontage;
 
 	UPROPERTY(EditAnywhere)

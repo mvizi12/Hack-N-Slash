@@ -17,7 +17,7 @@ class HACK_N_SLASH_API UTraceComponent : public UActorComponent
 
 private:
 	AActor* ownerRef; //Reference to the owner of this component
-	TArray<FHitResult> allHits;
+	TArray<AActor*> actorsToIgnore;
 
 	void GetReferences();
 	void HandleDamage(TSubclassOf<UDamageTypeMain>, TArray<FHitResult>&, float);
@@ -32,8 +32,11 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnReportDamageSignature OnReportDamageDelegate;
 
-	void WeaponTrace(TSubclassOf<UDamageTypeMain>, float, float, float);
-
 	UTraceComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleResetAttack(); //Public so animations can call it
+
+	void WeaponTrace(TSubclassOf<UDamageTypeMain>, float, float, float); //Public so animations can call it
 };

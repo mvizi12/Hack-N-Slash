@@ -45,11 +45,12 @@ void UTraceComponent::HandleDamage(TSubclassOf<UDamageTypeMain> damageType, TArr
 	for (const FHitResult& hitResult : outHits)
 	{
 		AActor* targetActor {hitResult.GetActor()};
-		if (targetActor == nullptr) {continue;}
+		if (actorsToIgnore.Contains(targetActor)) {continue;}
 		UGameplayStatics::ApplyDamage(targetActor, damage, ownerRef->GetInstigatorController(), ownerRef, damageType);
 		//FDamageEvent Event;
 		//targetActor->TakeDamage(damage, Event, ownerRef->GetInstigatorController(), ownerRef);
 		OnReportDamageDelegate.Broadcast(targetActor, damage, targetActor->GetActorLocation());
+		actorsToIgnore.AddUnique(targetActor);
 	}
 }
 /************************************Private Functions************************************/
@@ -58,15 +59,20 @@ void UTraceComponent::HandleDamage(TSubclassOf<UDamageTypeMain> damageType, TArr
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
+void UTraceComponent::HandleResetAttack()
+{
+	actorsToIgnore.Empty();
+}
+
 void UTraceComponent::WeaponTrace(TSubclassOf<UDamageTypeMain> damageType, float traceDistance, float traceRadius, float damage)
 {
 	TArray<FHitResult> outHits;
 	FVector startLocation = ownerRef->GetActorLocation();
 	FVector endLocation = traceDistance * ownerRef->GetActorForwardVector() + startLocation;
-	TArray<AActor*> actorsToIgnore; //Empty array
+	TArray<AActor*> temp {ownerRef}; //Ignore self
 
-	if (bDebugMode) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, actorsToIgnore, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
-	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, actorsToIgnore, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
+	if (bDebugMode) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
+	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
 
 	if (outHits.Num() <= 0) {return;}
 	HandleDamage(damageType, outHits, damage);

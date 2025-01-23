@@ -34,9 +34,6 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 	case EDamageType::DefaultDMGType:
 		UE_LOG(LogTemp, Warning, TEXT("Default"));
 		return nullptr;
-	case EDamageType::Back:
-		UE_LOG(LogTemp, Warning, TEXT("Back"));
-		return backHitMontage;
 	case EDamageType::KnockBack:
 		UE_LOG(LogTemp, Warning, TEXT("Knockback"));
 		return kbHitMontage;
