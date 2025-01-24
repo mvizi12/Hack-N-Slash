@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "PlayerAnimInstance.generated.h"
+#include "EnemyBaseAnimInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API UPlayerAnimInstance : public UAnimInstance
+class HACK_N_SLASH_API UEnemyBaseAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
 	//Unreal doesn't suggest private variables be exposed to blueprint
 	private:
-		APawn* playerPawn;
+		APawn* enemyPawn;
 		ACharacter* characterRef;
 		class UCharacterMovementComponent* movementComp;
 
@@ -36,7 +36,7 @@ class HACK_N_SLASH_API UPlayerAnimInstance : public UAnimInstance
 		bool bIsFalling {false};
 
 		UFUNCTION(BlueprintCallable)
-		void UpdatePlayerPawn();
+		void UpdateEnemyPawn();
 
 		UFUNCTION(BlueprintCallable)
 		void UpdateCurrentAngle();

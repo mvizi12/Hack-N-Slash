@@ -1,45 +1,44 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerAnimInstance.h"
+#include "EnemyBaseAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 /*PRIVATE FUNCTIONS*/
-void UPlayerAnimInstance::UpdateVelocity()
+void UEnemyBaseAnimInstance::UpdateVelocity()
 {
-    currentVeloctiy = playerPawn->GetVelocity();
+    currentVeloctiy = enemyPawn->GetVelocity();
 }
 
-
 /*PROTECTED FUNCTIONS*/
-void UPlayerAnimInstance::UpdatePlayerPawn()
+void UEnemyBaseAnimInstance::UpdateEnemyPawn()
 {
-    playerPawn = TryGetPawnOwner();
-    characterRef = Cast<ACharacter>(playerPawn);
+    enemyPawn = TryGetPawnOwner();
+    characterRef = Cast<ACharacter>(enemyPawn);
     movementComp = characterRef->GetCharacterMovement();
 }
 
-void UPlayerAnimInstance::UpdateCurrentAngle()
+void UEnemyBaseAnimInstance::UpdateCurrentAngle()
 {
-    if (!IsValid(playerPawn)) {return;}
+    if (!IsValid(enemyPawn)) {return;}
 
     UpdateVelocity();
-    FRotator currentRotation = playerPawn->GetActorRotation();
+    FRotator currentRotation = enemyPawn->GetActorRotation();
     currentAngle = CalculateDirection(currentVeloctiy, currentRotation);
     //UKismetAnimationLibrary::CalculateDirection(currentVeloctiy, currentRotation);
 }
 
-void UPlayerAnimInstance::UpdateCurrentSpeed()
+void UEnemyBaseAnimInstance::UpdateCurrentSpeed()
 {
-    if (!IsValid(playerPawn)) {return;}
+    if (!IsValid(enemyPawn)) {return;}
 
     UpdateVelocity();
     currentSpeed = static_cast<float>(currentVeloctiy.Length());
 }
 
-void UPlayerAnimInstance::UpdateIsFalling()
+void UEnemyBaseAnimInstance::UpdateIsFalling()
 {
-    if (!IsValid(playerPawn)) {return;}
+    if (!IsValid(enemyPawn)) {return;}
     bIsFalling = movementComp->IsFalling();
 }

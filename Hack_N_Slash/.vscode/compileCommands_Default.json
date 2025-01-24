@@ -216,6 +216,22 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
 	},
 	{
+		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animations\\Enemies\\EnemyBaseAnimInstance.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animations\\Enemies\\EnemyBaseAnimInstance.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
+	},
+	{
 		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animations\\Player\\PlayerAnimInstance.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
@@ -257,6 +273,22 @@
 	},
 	{
 		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\EState.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Enemies\\EnemyBase.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Characters\\Enemies\\EnemyBase.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
@@ -569,22 +601,6 @@
 	},
 	{
 		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Interfaces\\MainPlayerI.h",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Throwaway.cpp",
-		"arguments": [
-			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
-			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
-		],
-		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
-	},
-	{
-		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Throwaway.h",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
 			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Default\\Hack_N_Slash.1.rsp"
