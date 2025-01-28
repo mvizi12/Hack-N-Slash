@@ -34,7 +34,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 /************************************Private Functions************************************/
 bool UCombatComponent::CanAttack()
 {
-    TArray<EState> invalidAttackStates = {EState::Attack, EState::Death, EState::Dodge}; //States the player isn't allowed to attack
+    TArray<EState> invalidAttackStates = {EState::Attack, EState::Death, EState::Dodge, EState::HitStun}; //States the player isn't allowed to attack
 	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();
 }
 
@@ -46,7 +46,7 @@ UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
 
 UAnimMontage* UCombatComponent::GetComboStarterAnimMontage()
 {
-	int temp = comboCounter - 1; //The 1st combo starter montage will correlate with the 1st heavy attack ans so on
+	int temp = comboCounter - 1; //The 1st combo starter montage will correlate with the 1st heavy attack and so on
 	if (temp >= comboStarterMontages.Num()) {return nullptr;}
     return comboStarterMontages[temp];
 }
