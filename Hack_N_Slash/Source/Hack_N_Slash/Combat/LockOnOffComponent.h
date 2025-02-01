@@ -12,7 +12,22 @@ class HACK_N_SLASH_API ULockOnOffComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+private:
+	TArray<FHitResult> enemyHits; //Potential lock on targets
+	//Making this a character instead of an actor because we want access to some functions in the "ACharacter" class
+	ACharacter* ownerRef; //Reference to the owner of this component
+	APlayerController* playerController;
+	class UCharacterMovementComponent* characterMovementComponent;
+	class USpringArmComponent* springArmComponent;
+	class UCameraComponent* camComp;
+
+	void GetReferences();
+	void LockOn(float, FVector);
+
 protected:
+	UPROPERTY(VisibleAnywhere)
+	bool bDebugMode {false};
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bLockedOn {false};
 
@@ -20,16 +35,19 @@ protected:
 	float lockedOnCameraTiltZ {0.0f};
 
 	UPROPERTY(EditDefaultsOnly, meta = (ToolTip = "Max distance the player can be from target to lock on"))
-	double breakDistance {1000.0f};
+	double traceDistance {1000.0f};
 
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ToggleLockOnOff(float radius, FVector cameraOffset);
+	void ToggleLockOnOff(float traceRadius, FVector cameraOffset);
 
 public:
+	AActor* currentTargetActor;
+
 	ULockOnOffComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	bool GetLockedOn();		
+	void LockOff();
 };

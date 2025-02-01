@@ -6,10 +6,11 @@
 #include "GameFramework/Character.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\EState.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Enemy.h"
 #include "EnemyBase.generated.h"
 
 UCLASS()
-class HACK_N_SLASH_API AEnemyBase : public ACharacter, public IFighter
+class HACK_N_SLASH_API AEnemyBase : public ACharacter, public IFighter, public IEnemy
 {
 	GENERATED_BODY()
 	
