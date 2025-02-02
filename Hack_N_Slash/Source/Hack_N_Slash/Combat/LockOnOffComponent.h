@@ -13,19 +13,22 @@ class HACK_N_SLASH_API ULockOnOffComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	TArray<FHitResult> enemyHits; //Potential lock on targets
+	float dotProduct {FLT_MAX};
+
+	TArray<AActor*> enemies; //Potential lock on targets
 	//Making this a character instead of an actor because we want access to some functions in the "ACharacter" class
 	ACharacter* ownerRef; //Reference to the owner of this component
-	APlayerController* playerController;
-	class UCharacterMovementComponent* characterMovementComponent;
-	class USpringArmComponent* springArmComponent;
+	//APlayerController* playerController;
+	//class UCharacterMovementComponent* characterMovementComponent;
+	//class USpringArmComponent* springArmComponent;
 	class UCameraComponent* camComp;
 
 	void GetReferences();
-	void LockOn(float, FVector);
+	float GetDistanceToTarget(FVector, FVector);
+	void FindActorsToLockOnTo(float, FVector);
 
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	bool bDebugMode {false};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
