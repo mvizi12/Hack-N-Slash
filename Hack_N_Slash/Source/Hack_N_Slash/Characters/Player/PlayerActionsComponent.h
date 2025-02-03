@@ -18,6 +18,7 @@ class HACK_N_SLASH_API UPlayerActionsComponent : public UActorComponent
 private:
 	ACharacter* characterRef;
 	class UCharacterMovementComponent* movementComp;
+	class ULockOnOffComponent* lockOnOffComp;
 	class IMainPlayerI* iPlayerRef;
 	class IFighter* iFighterRef;
 
@@ -50,6 +51,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void Jump();
+
+	UFUNCTION(BlueprintCallable)
+	void Look(float yaw, float pitch);
 
 	UFUNCTION(BlueprintCallable)
 	void ResetDodgeBuffer(); //For other to call via an event

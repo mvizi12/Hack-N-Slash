@@ -33,9 +33,20 @@ void ULockOnOffComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	SetPlayerControlRotation();
 }
 
-/************************************Private Functions************************************/
-void ULockOnOffComponent::FindActorsToLockOnTo()
+void ULockOnOffComponent::GetReferences()
 {
+	ownerRef = GetOwner<ACharacter>();
+	if (ownerRef == nullptr) {return;}
+	playerController = ownerRef->GetController<APlayerController>();
+	characterMovementComponent = ownerRef->GetCharacterMovement();
+	springArmComponent = ownerRef->FindComponentByClass<USpringArmComponent>();
+	camComp = ownerRef->FindComponentByClass<UCameraComponent>();
+}
+
+/************************************Private Functions************************************/
+void ULockOnOffComponent::FindActorsToLockOnTo(bool bDetermineEnemyLockOn)
+{
+	enemies.Empty();
 	/****************SPHERE TRACE AROUND THE PLAYER AND CATALOG ANY ENEMIES HIT****************************/
 	TArray<FHitResult> outHits;
 	FVector startLocation = ownerRef->GetActorLocation();
@@ -51,16 +62,23 @@ void ULockOnOffComponent::FindActorsToLockOnTo()
 	{
 		AActor* enemy = hit.GetActor();
 		if (!enemy->Implements<UEnemy>()) {continue;} //If hit actor doesn't implement "Enemy" interface, continue to next loop
-		enemies.AddUnique(enemy);
+		enemies.AddUnique(TPair<AActor*, float>(enemy, FLT_MAX));
 	}
 	/****************SPHERE TRACE AROUND THE PLAYER AND CATALOG ANY ENEMIES HIT****************************/
+	if (bDetermineEnemyLockOn)
+	{
+		DetermineLockOnEnemy(startLocation);
+		LockOn();
+	}
+}
 
-	/*********************************DETERMINE WHICH ENEMY TO LOCK ON TO**********************************/
-	for (AActor* enemy : enemies)
+void ULockOnOffComponent::DetermineLockOnEnemy(FVector startLocation)
+{
+	for (TPair<AActor*, float>& pair : enemies)
 	{
 		FHitResult outHit;
 		FVector camLocation {camComp->GetComponentLocation()};
-		FVector endLocation = enemy->GetActorLocation();
+		FVector endLocation = pair.Key->GetActorLocation();
 		FCollisionQueryParams ignoreParams {FName {TEXT("Ignore Collision Parameters")}, false, ownerRef};
 		bool bHit = GetWorld()->LineTraceSingleByChannel(outHit, camLocation, endLocation, ECC_Visibility, ignoreParams);
 		if (bDebugMode) {DrawDebugLine(GetWorld(), camLocation, endLocation, bHit ? FColor::Yellow : FColor::Blue, false, 1.0f, 0, 1.0f);}
@@ -72,26 +90,15 @@ void ULockOnOffComponent::FindActorsToLockOnTo()
 		}
 
 		float distanceToTarget = GetDistanceToTarget(startLocation, endLocation);
+		pair.Value = distanceToTarget;
 		UE_LOG(LogTemp, Warning, TEXT("Distance to player: %f"), distanceToTarget);
 		if (distanceToTarget < dotProduct) //If this enemy is closer than the previous one
 		{
 			//This enemy is now the current target actor
 			dotProduct = distanceToTarget;
-			currentTargetActor = enemy;
+			currentTargetActor = pair.Key;
 		}
 	}
-	/*********************************DETERMINE WHICH ENEMY TO LOCK ON TO**********************************/
-	LockOn();
-}
-
-void ULockOnOffComponent::GetReferences()
-{
-	ownerRef = GetOwner<ACharacter>();
-	if (ownerRef == nullptr) {return;}
-	playerController = ownerRef->GetController<APlayerController>();
-	characterMovementComponent = ownerRef->GetCharacterMovement();
-	springArmComponent = ownerRef->FindComponentByClass<USpringArmComponent>();
-	camComp = ownerRef->FindComponentByClass<UCameraComponent>();
 }
 
 //Whicever enemy yields the smallest dot product will be who we initially lock onto
@@ -145,7 +152,7 @@ void ULockOnOffComponent::SetPlayerControlRotation()
 void ULockOnOffComponent::ToggleLockOnOff()
 {
 	if (bLockedOn) {LockOff();}
-	else {FindActorsToLockOnTo();}
+	else {FindActorsToLockOnTo(true);}
 }
 /************************************Protected Functions************************************/
 
@@ -159,6 +166,34 @@ void ULockOnOffComponent::LockOff()
 	springArmComponent->TargetOffset = FVector::ZeroVector;
 	characterMovementComponent->bUseControllerDesiredRotation = false;
 	IEnemy::Execute_OnDeselect(currentTargetActor);
+	enemies.Empty();
 	currentTargetActor = nullptr;
+}
+
+//Switches to the next closest enemy to the left or right
+void ULockOnOffComponent::SwitchLockOnTarget(float yaw)
+{
+	FindActorsToLockOnTo(false);
+	if (enemies.Num() <= 1) {return;}
+
+	//Sort the pairs based on their distance
+	enemies.Sort([](const TPair<AActor*, float>& A, const TPair<AActor*, float>& B) {return A.Value < B.Value;});
+	
+	int i;
+	for (i = 0; i < enemies.Num(); ++i)
+	{
+		if (enemies[i].Key == currentTargetActor) {break;}
+	}
+
+	if (i == 0) {UE_LOG(LogTemp, Warning, TEXT("Actor not found in list"));}
+
+	yaw *= -1.0f;
+	if (yaw < 0) {--i;} //Switch to the closest enemy on the left
+	else {++i;}
+	i = UKismetMathLibrary::FClamp(i, 0, enemies.Num() - 1);
+	IEnemy::Execute_OnDeselect(currentTargetActor);
+	currentTargetActor = enemies[i].Key;
+	IEnemy::Execute_OnSelect(currentTargetActor);
+	dotProduct = enemies[i].Value;
 }
 /************************************Public Functions************************************/

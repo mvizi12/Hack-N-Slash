@@ -24,6 +24,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EState currentState {EState::NoneState};
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* deathMontage;
+
 	virtual void BeginPlay() override;
 
 public:
@@ -37,6 +41,8 @@ public:
 	virtual float GetStrength() const override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
 	virtual bool IsInvincible() const override;
+	UFUNCTION(BlueprintCallable)
+	virtual void HandleDeath() override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
 

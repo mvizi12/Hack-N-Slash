@@ -15,7 +15,8 @@ class HACK_N_SLASH_API ULockOnOffComponent : public UActorComponent
 private:
 	float dotProduct {FLT_MAX};
 
-	TArray<AActor*> enemies; //Potential lock on targets
+	TArray<TPair<AActor*, float>> enemies;
+	//TArray<AActor*> enemies; //Potential lock on targets
 	//Making this a character instead of an actor because we want access to some functions in the "ACharacter" class
 	ACharacter* ownerRef; //Reference to the owner of this component
 	APlayerController* playerController;
@@ -23,8 +24,10 @@ private:
 	class USpringArmComponent* springArmComponent;
 	class UCameraComponent* camComp;
 
-	void FindActorsToLockOnTo();
 	void GetReferences();
+
+	void FindActorsToLockOnTo(bool);
+	void DetermineLockOnEnemy(FVector);
 	float GetDistanceToTarget(FVector, FVector);
 	void LockOn();
 	void SetPlayerControlRotation();
@@ -59,6 +62,7 @@ public:
 	ULockOnOffComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	bool GetLockedOn();		
+	bool GetLockedOn();
 	void LockOff();
+	void SwitchLockOnTarget(float);
 };

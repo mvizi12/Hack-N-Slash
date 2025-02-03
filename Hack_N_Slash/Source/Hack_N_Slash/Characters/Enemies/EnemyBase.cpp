@@ -2,7 +2,9 @@
 
 
 #include "EnemyBase.h"
+#include "Components/CapsuleComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -39,6 +41,27 @@ float AEnemyBase::GetStrength() const
 bool AEnemyBase::IsCurrentStateEqualToAny(TArray<EState> states) const {return states.Contains(currentState);}
 
 bool AEnemyBase::IsInvincible() const {return bIsInvincible;}
+
+void AEnemyBase::HandleDeath()
+{
+	/*******************Play death animation, stop the AI's brain, and disable collision************************/
+	//blackBoardComp->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::DeadE);
+	SetState(EState::Death);
+	float duration {0.0f};
+	if (deathMontage != nullptr) {duration = PlayAnimMontage(deathMontage);}
+	//controllerRef->GetBrainComponent()->StopLogic("Defeated");
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	/*******************Play death animation and stop the AI's brain************************/
+
+	//FTimerHandle destroyTimerHandle;
+	//GetWorld()->GetTimerManager().SetTimer(destroyTimerHandle, this, &AEnemyBase::FinishDeathAnim, duration, false);
+	
+	/***************End the player's lock on to this enemy if they're locked on to them*******************/
+	IMainPlayerI* iPlayerRef {GetWorld()->GetFirstPlayerController()->GetPawn<IMainPlayerI>()};
+	if (!iPlayerRef) {return;}
+	iPlayerRef->EndLockOnWithActor(this);
+	/***************End the player's lock on to this enemy if they're locked on to them*******************/
+}
 
 void AEnemyBase::SetState(EState state) {currentState = state;}
 

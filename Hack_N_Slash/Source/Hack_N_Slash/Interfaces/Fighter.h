@@ -25,6 +25,7 @@ class HACK_N_SLASH_API IFighter
 public:
 	virtual EState GetState() const {return EState::NoneState;}
 	virtual float GetStrength() const {return 0.0f;}
+	virtual void HandleDeath() {}
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const {return false;}
 	virtual bool IsInvincible() const {return false;}
 	virtual void SetState(EState) {}

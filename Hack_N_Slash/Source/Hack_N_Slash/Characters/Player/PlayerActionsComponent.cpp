@@ -8,6 +8,7 @@
 #include "Engine/Engine.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\LockOnOffComponent.h"
 
 // Sets default values for this component's properties
 UPlayerActionsComponent::UPlayerActionsComponent()
@@ -24,6 +25,7 @@ void UPlayerActionsComponent::BeginPlay()
 
 	characterRef = GetOwner<ACharacter>();
 	movementComp = characterRef->GetCharacterMovement();
+	lockOnOffComp = characterRef->FindComponentByClass<ULockOnOffComponent>();
 	iPlayerRef = Cast<IMainPlayerI>(characterRef);
 	iFighterRef = Cast<IFighter>(characterRef);
 }
@@ -100,6 +102,18 @@ void UPlayerActionsComponent::Jump()
 	characterRef->Jump();
 	//Perform Double Jump animation if already in the air and the character still has jumps left
 	if (movementComp->IsFalling() && characterRef->JumpCurrentCount < characterRef->JumpMaxCount) {characterRef->PlayAnimMontage(doubleJumpMontage);}
+}
+
+void UPlayerActionsComponent::Look(float yaw, float pitch)
+{
+	//If player is locked on to an enemy, try targetting another enemy
+	//Else do regular look input
+	if (lockOnOffComp->GetLockedOn()) {lockOnOffComp->SwitchLockOnTarget(yaw);}
+	else
+	{
+		characterRef->AddControllerYawInput(yaw);
+		characterRef->AddControllerPitchInput(pitch);
+	}
 }
 
 void UPlayerActionsComponent::ResetDodgeBuffer()

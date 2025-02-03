@@ -83,10 +83,10 @@ void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType d
 	if (stats[EStat::Health] <= 0) //Play death montage
 	{
 		OnZeroHealthUpdateDelegate.Broadcast();
-		iFighterRef->SetState(EState::Death);
+		/*iFighterRef->SetState(EState::Death);
 		if (characterRef == nullptr) {return;}
 		characterRef->PlayAnimMontage(deathMontage);
-		characterRef->SetActorEnableCollision(false);
+		characterRef->SetActorEnableCollision(false);*/
 	}
 	else //Play hurt montage
 	{

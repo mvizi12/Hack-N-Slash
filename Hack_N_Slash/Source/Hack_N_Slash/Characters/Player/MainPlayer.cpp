@@ -2,6 +2,8 @@
 
 
 #include "MainPlayer.h"
+//#include "GameFramework/Character.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\LockOnOffComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 
 // Sets default values
@@ -15,6 +17,8 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	characterRef = GetOwner<ACharacter>();
+	lockOnOffComp = FindComponentByClass<ULockOnOffComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
 }
 
@@ -40,12 +44,34 @@ void AMainPlayer::NegateInvincibility()
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
+void AMainPlayer::EndLockOnWithActor(AActor *actor)
+{
+	if (lockOnOffComp == nullptr) {return;}
+	if (!IsValid(lockOnOffComp->currentTargetActor) || lockOnOffComp->currentTargetActor != actor) {return;}
+	lockOnOffComp->LockOff();
+}
+
 EState AMainPlayer::GetState() const {return currentState;}
 
 float AMainPlayer::GetStrength() const
 {
 	if (statsComp == nullptr) {return 0.0f;}
 	return statsComp->stats[EStat::Strength];
+}
+
+void AMainPlayer::HandleDeath()
+{
+	SetState(EState::Death);
+	DisableInput(GetController<APlayerController>());
+	if (characterRef == nullptr) {return;}
+	if (deathMontage != nullptr) {PlayAnimMontage(deathMontage);}
+	characterRef->SetActorEnableCollision(false);
+}
+
+bool AMainPlayer::HasEnoughStamina(float staminaCost)
+{
+	if (statsComp == nullptr || !statsComp->stats[EStat::Stamina]) {return false;}
+    return statsComp->stats[EStat::Stamina] >= staminaCost;
 }
 
 bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const

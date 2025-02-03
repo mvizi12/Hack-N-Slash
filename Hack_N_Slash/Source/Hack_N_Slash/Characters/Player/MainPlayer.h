@@ -15,8 +15,11 @@ class HACK_N_SLASH_API AMainPlayer : public ACharacter, public IMainPlayerI, pub
 	GENERATED_BODY()
 
 private:
-	void NegateInvincibility();
+	ACharacter* characterRef;
+	class ULockOnOffComponent* lockOnOffComp;
 	class UStatsComponent* statsComp;
+
+	void NegateInvincibility();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -24,6 +27,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EState currentState {EState::NoneState};
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* deathMontage;
 	
 	virtual void BeginPlay() override;
 
@@ -31,10 +37,16 @@ public:
 	AMainPlayer();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+	/***************Interface Functions - Main Player***************/
+	virtual void EndLockOnWithActor(AActor*) override; //For when the locked on enemy dies
+	virtual bool HasEnoughStamina(float) override;
+
 	/***************Interface Functions - Fighter***************/
 	virtual EState GetState() const override;
 	virtual float GetStrength() const override;
+	UFUNCTION(BlueprintCallable)
+	virtual void HandleDeath() override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
 	virtual bool IsInvincible() const override;
 	virtual void SetState(EState) override;
