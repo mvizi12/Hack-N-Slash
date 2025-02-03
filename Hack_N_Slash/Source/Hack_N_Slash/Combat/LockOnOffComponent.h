@@ -18,14 +18,16 @@ private:
 	TArray<AActor*> enemies; //Potential lock on targets
 	//Making this a character instead of an actor because we want access to some functions in the "ACharacter" class
 	ACharacter* ownerRef; //Reference to the owner of this component
-	//APlayerController* playerController;
-	//class UCharacterMovementComponent* characterMovementComponent;
-	//class USpringArmComponent* springArmComponent;
+	APlayerController* playerController;
+	class UCharacterMovementComponent* characterMovementComponent;
+	class USpringArmComponent* springArmComponent;
 	class UCameraComponent* camComp;
 
+	void FindActorsToLockOnTo();
 	void GetReferences();
 	float GetDistanceToTarget(FVector, FVector);
-	void FindActorsToLockOnTo(float, FVector);
+	void LockOn();
+	void SetPlayerControlRotation();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -34,16 +36,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bLockedOn {false};
 
-	UPROPERTY(EditDefaultsOnly, meta = (ToolTip = "Positive number will tilt the camera up when locked on and negative number will tilt down"))
+	UPROPERTY(EditAnywhere, meta = (ToolTip = "Added to the player's camera location when locke don"))
+	FVector cameraOffset;
+
+	UPROPERTY(EditAnywhere, meta = (ToolTip = "Positive number will tilt the camera up when locked on and negative number will tilt down"))
 	float lockedOnCameraTiltZ {0.0f};
 
-	UPROPERTY(EditDefaultsOnly, meta = (ToolTip = "Max distance the player can be from target to lock on"))
-	double traceDistance {1000.0f};
+	UPROPERTY(EditAnywhere)
+	float cameraInterpSpeed {30.0f};
+
+	UPROPERTY(EditDefaultsOnly, meta = (ToolTip = "Radius around the player to trace for targets"))
+	double traceRadius {1000.0f};
 
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void ToggleLockOnOff(float traceRadius, FVector cameraOffset);
+	void ToggleLockOnOff();
 
 public:
 	AActor* currentTargetActor;
