@@ -13,9 +13,7 @@ class HACK_N_SLASH_API ULockOnOffComponent : public UActorComponent
 	GENERATED_BODY()
 
 private:
-	float dotProduct {FLT_MAX};
-
-	TArray<TPair<AActor*, float>> enemies;
+	TArray<AActor*> enemies;
 	//TArray<AActor*> enemies; //Potential lock on targets
 	//Making this a character instead of an actor because we want access to some functions in the "ACharacter" class
 	ACharacter* ownerRef; //Reference to the owner of this component
@@ -26,9 +24,10 @@ private:
 
 	void GetReferences();
 
-	void FindActorsToLockOnTo(bool);
-	void DetermineLockOnEnemy(FVector);
-	float GetDistanceToTarget(FVector, FVector);
+	void FindClosestEnemy(FVector);
+	void FindClosestLeftEnemy(FVector);
+	void FindClosestRightEnemy(FVector);
+	double GetAngleToTarget(FVector, FVector) const;
 	void LockOn();
 	void SetPlayerControlRotation();
 
@@ -38,6 +37,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bLockedOn {false};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	double dotProduct {0.0f};
 
 	UPROPERTY(EditAnywhere, meta = (ToolTip = "Added to the player's camera location when locke don"))
 	FVector cameraOffset;
@@ -62,7 +64,7 @@ public:
 	ULockOnOffComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void FindActorsToLockOnTo(float);
 	bool GetLockedOn();
 	void LockOff();
-	void SwitchLockOnTarget(float);
 };

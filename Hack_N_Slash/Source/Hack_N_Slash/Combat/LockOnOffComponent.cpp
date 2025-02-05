@@ -44,41 +44,13 @@ void ULockOnOffComponent::GetReferences()
 }
 
 /************************************Private Functions************************************/
-void ULockOnOffComponent::FindActorsToLockOnTo(bool bDetermineEnemyLockOn)
+void ULockOnOffComponent::FindClosestEnemy(FVector startLocation)
 {
-	enemies.Empty();
-	/****************SPHERE TRACE AROUND THE PLAYER AND CATALOG ANY ENEMIES HIT****************************/
-	TArray<FHitResult> outHits;
-	FVector startLocation = ownerRef->GetActorLocation();
-	//FVector endLocation = traceDistance * ownerRef->GetActorForwardVector() + startLocation;
-	TArray<AActor*> temp {ownerRef}; //Ignore self
-
-	if (bDebugMode) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, startLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
-	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, startLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
-
-	if (outHits.Num() <= 0) {return;}
-
-	for (const FHitResult& hit : outHits)
-	{
-		AActor* enemy = hit.GetActor();
-		if (!enemy->Implements<UEnemy>()) {continue;} //If hit actor doesn't implement "Enemy" interface, continue to next loop
-		enemies.AddUnique(TPair<AActor*, float>(enemy, FLT_MAX));
-	}
-	/****************SPHERE TRACE AROUND THE PLAYER AND CATALOG ANY ENEMIES HIT****************************/
-	if (bDetermineEnemyLockOn)
-	{
-		DetermineLockOnEnemy(startLocation);
-		LockOn();
-	}
-}
-
-void ULockOnOffComponent::DetermineLockOnEnemy(FVector startLocation)
-{
-	for (TPair<AActor*, float>& pair : enemies)
+	for (AActor* enemy : enemies)
 	{
 		FHitResult outHit;
 		FVector camLocation {camComp->GetComponentLocation()};
-		FVector endLocation = pair.Key->GetActorLocation();
+		FVector endLocation = enemy->GetActorLocation();
 		FCollisionQueryParams ignoreParams {FName {TEXT("Ignore Collision Parameters")}, false, ownerRef};
 		bool bHit = GetWorld()->LineTraceSingleByChannel(outHit, camLocation, endLocation, ECC_Visibility, ignoreParams);
 		if (bDebugMode) {DrawDebugLine(GetWorld(), camLocation, endLocation, bHit ? FColor::Yellow : FColor::Blue, false, 1.0f, 0, 1.0f);}
@@ -89,21 +61,102 @@ void ULockOnOffComponent::DetermineLockOnEnemy(FVector startLocation)
 			continue;
 		}
 
-		float distanceToTarget = GetDistanceToTarget(startLocation, endLocation);
-		pair.Value = distanceToTarget;
-		UE_LOG(LogTemp, Warning, TEXT("Distance to player: %f"), distanceToTarget);
-		if (distanceToTarget < dotProduct) //If this enemy is closer than the previous one
+		//distanceToTarget = a value between 0 and 1
+		//0 = not close | 1 = close
+		double angleToTarget = GetAngleToTarget(startLocation, endLocation);
+		UE_LOG(LogTemp, Warning, TEXT("Angle to target: %f"), angleToTarget);
+		if (angleToTarget > dotProduct) //If this enemy is closer than the previous one
 		{
 			//This enemy is now the current target actor
-			dotProduct = distanceToTarget;
-			currentTargetActor = pair.Key;
+			dotProduct = angleToTarget;
+			currentTargetActor = enemy;
+		}
+	}
+}
+
+void ULockOnOffComponent::FindClosestLeftEnemy(FVector startLocation)
+{
+	AActor* temp = currentTargetActor; //Used to make sure the player can't switch to the current target
+	dotProduct = 0;
+	for (AActor* enemy : enemies)
+	{
+		FHitResult outHit;
+		FVector camLocation {camComp->GetComponentLocation()};
+		FVector endLocation = enemy->GetActorLocation();
+		FCollisionQueryParams ignoreParams {FName {TEXT("Ignore Collision Parameters")}, false, ownerRef};
+		bool bHit = GetWorld()->LineTraceSingleByChannel(outHit, camLocation, endLocation, ECC_Visibility, ignoreParams);
+		if (bDebugMode) {DrawDebugLine(GetWorld(), camLocation, endLocation, bHit ? FColor::Yellow : FColor::Blue, false, 1.0f, 0, 1.0f);}
+
+		if (bHit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Object blocking sight: %s"), *outHit.GetActor()->GetName());
+			continue;
+		}
+
+		GetWorld()->LineTraceSingleByChannel(outHit, camLocation, endLocation, ECC_GameTraceChannel1, ignoreParams);
+		FVector rightVec {camComp->GetRightVector()};
+		FVector normalVec {outHit.Normal};
+		double angle {FVector::DotProduct(rightVec, normalVec)};
+		//If enemy isn't on the left side of the player or is the same as current target, skip it
+		if (angle <= 0 || temp == enemy) {continue;}
+
+		//distanceToTarget = a value between 0 and 1
+		//0 = not close | 1 = close
+		double angleToTarget = GetAngleToTarget(startLocation, endLocation);
+		UE_LOG(LogTemp, Warning, TEXT("Angle to target: %f | %s"), angleToTarget, *outHit.GetActor()->GetName());
+		if (angleToTarget > dotProduct) //If this enemy is closer than the previous one
+		{
+			IEnemy::Execute_OnDeselect(currentTargetActor);
+			//This enemy is now the current target actor
+			dotProduct = angleToTarget;
+			currentTargetActor = enemy;
+		}
+	}
+}
+
+void ULockOnOffComponent::FindClosestRightEnemy(FVector startLocation)
+{
+	AActor* temp = currentTargetActor; //Used to make sure the player can't switch to the current target
+	dotProduct = 0;
+	for (AActor* enemy : enemies)
+	{
+		FHitResult outHit;
+		FVector camLocation {camComp->GetComponentLocation()};
+		FVector endLocation = enemy->GetActorLocation();
+		FCollisionQueryParams ignoreParams {FName {TEXT("Ignore Collision Parameters")}, false, ownerRef};
+		bool bHit = GetWorld()->LineTraceSingleByChannel(outHit, camLocation, endLocation, ECC_Visibility, ignoreParams);
+		if (bDebugMode) {DrawDebugLine(GetWorld(), camLocation, endLocation, bHit ? FColor::Yellow : FColor::Blue, false, 1.0f, 0, 1.0f);}
+
+		if (bHit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Object blocking sight: %s"), *outHit.GetActor()->GetName());
+			continue;
+		}
+
+		GetWorld()->LineTraceSingleByChannel(outHit, camLocation, endLocation, ECC_GameTraceChannel1, ignoreParams);
+		FVector rightVec {camComp->GetRightVector()};
+		FVector normalVec {outHit.Normal};
+		double angle {FVector::DotProduct(rightVec, normalVec)};
+		//If enemy isn't on the right side of the player or is the same as current target, skip it
+		if (angle >= 0 || temp == enemy) {continue;}
+
+		//distanceToTarget = a value between 0 and 1
+		//0 = not close | 1 = close
+		double angleToTarget = GetAngleToTarget(startLocation, endLocation);
+		UE_LOG(LogTemp, Warning, TEXT("Angle to target: %f | %s"), angleToTarget, *outHit.GetActor()->GetName());
+		if (angleToTarget > dotProduct) //If this enemy is closer than the previous one
+		{
+			IEnemy::Execute_OnDeselect(currentTargetActor);
+			//This enemy is now the current target actor
+			dotProduct = angleToTarget;
+			currentTargetActor = enemy;
 		}
 	}
 }
 
 //Whicever enemy yields the smallest dot product will be who we initially lock onto
 //when swithing between locked on enemies, we'll switch by the smallest dot products
-float ULockOnOffComponent::GetDistanceToTarget(FVector playerLoc, FVector enemyLoc)
+double ULockOnOffComponent::GetAngleToTarget(FVector playerLoc, FVector enemyLoc) const
 {
 	FRotator desiredRot {UKismetMathLibrary::FindLookAtRotation(playerLoc, enemyLoc)}; //Rotation the player needs to face the enemy
 	FVector xVec {UKismetMathLibrary::Conv_RotatorToVector(desiredRot)}; //X is forward
@@ -152,48 +205,46 @@ void ULockOnOffComponent::SetPlayerControlRotation()
 void ULockOnOffComponent::ToggleLockOnOff()
 {
 	if (bLockedOn) {LockOff();}
-	else {FindActorsToLockOnTo(true);}
+	else {FindActorsToLockOnTo(0.0f);}
 }
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
+void ULockOnOffComponent::FindActorsToLockOnTo(float yaw)
+{
+	/****************SPHERE TRACE AROUND THE PLAYER AND CATALOG ANY ENEMIES HIT****************************/
+	TArray<FHitResult> outHits;
+	FVector startLocation = ownerRef->GetActorLocation();
+	TArray<AActor*> temp {ownerRef}; //Ignore self
+
+	if (bDebugMode) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, startLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
+	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, startLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
+
+	if (outHits.Num() <= 0) {return;}
+
+	for (const FHitResult& hit : outHits)
+	{
+		AActor* enemy = hit.GetActor();
+		if (!enemy->Implements<UEnemy>()) {continue;} //If hit actor doesn't implement "Enemy" interface, continue to next loop
+		enemies.AddUnique(enemy);
+	}
+	/****************SPHERE TRACE AROUND THE PLAYER AND CATALOG ANY ENEMIES HIT****************************/
+	if (yaw < 0) {FindClosestLeftEnemy(startLocation);}
+	else if (yaw > 0) {FindClosestRightEnemy(startLocation);}
+	else {FindClosestEnemy(startLocation);}
+	LockOn();
+}
+
 bool ULockOnOffComponent::GetLockedOn() {return bLockedOn;}
 
 void ULockOnOffComponent::LockOff()
 {
 	bLockedOn = false;
-	dotProduct = FLT_MAX;
+	dotProduct = 0.0f;
 	springArmComponent->TargetOffset = FVector::ZeroVector;
 	characterMovementComponent->bUseControllerDesiredRotation = false;
-	IEnemy::Execute_OnDeselect(currentTargetActor);
+	if (IsValid(currentTargetActor)) {IEnemy::Execute_OnDeselect(currentTargetActor);}
 	enemies.Empty();
 	currentTargetActor = nullptr;
-}
-
-//Switches to the next closest enemy to the left or right
-void ULockOnOffComponent::SwitchLockOnTarget(float yaw)
-{
-	FindActorsToLockOnTo(false);
-	if (enemies.Num() <= 1) {return;}
-
-	//Sort the pairs based on their distance
-	enemies.Sort([](const TPair<AActor*, float>& A, const TPair<AActor*, float>& B) {return A.Value < B.Value;});
-	
-	int i;
-	for (i = 0; i < enemies.Num(); ++i)
-	{
-		if (enemies[i].Key == currentTargetActor) {break;}
-	}
-
-	if (i == 0) {UE_LOG(LogTemp, Warning, TEXT("Actor not found in list"));}
-
-	yaw *= -1.0f;
-	if (yaw < 0) {--i;} //Switch to the closest enemy on the left
-	else {++i;}
-	i = UKismetMathLibrary::FClamp(i, 0, enemies.Num() - 1);
-	IEnemy::Execute_OnDeselect(currentTargetActor);
-	currentTargetActor = enemies[i].Key;
-	IEnemy::Execute_OnSelect(currentTargetActor);
-	dotProduct = enemies[i].Value;
 }
 /************************************Public Functions************************************/

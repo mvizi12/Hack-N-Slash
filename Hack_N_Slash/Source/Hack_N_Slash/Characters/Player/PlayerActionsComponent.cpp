@@ -108,7 +108,7 @@ void UPlayerActionsComponent::Look(float yaw, float pitch)
 {
 	//If player is locked on to an enemy, try targetting another enemy
 	//Else do regular look input
-	if (lockOnOffComp->GetLockedOn()) {lockOnOffComp->SwitchLockOnTarget(yaw);}
+	if (lockOnOffComp->GetLockedOn()) {lockOnOffComp->FindActorsToLockOnTo(yaw);}
 	else
 	{
 		characterRef->AddControllerYawInput(yaw);
