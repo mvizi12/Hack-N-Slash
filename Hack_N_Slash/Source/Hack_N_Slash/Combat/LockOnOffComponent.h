@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "LockOnOffComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnRotateToTargetSignature, ULockOnOffComponent, OnRotateToTargetDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API ULockOnOffComponent : public UActorComponent
@@ -56,15 +57,23 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
+	void RotateToTarget(float interpSpeed); //Only useful when orienttomovement is disabled
+
+	UFUNCTION(BlueprintCallable)
 	void ToggleLockOnOff();
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnRotateToTargetSignature OnRotateToTargetDelegate;
+
 	AActor* currentTargetActor;
 
 	ULockOnOffComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void FindActorsToLockOnTo(float);
+	UFUNCTION(BlueprintCallable)
+	AActor* GetCurrentTarget() const;
 	bool GetLockedOn();
 	void LockOff();
 };

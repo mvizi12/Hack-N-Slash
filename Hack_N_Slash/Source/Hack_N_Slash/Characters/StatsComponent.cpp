@@ -24,6 +24,7 @@ void UStatsComponent::BeginPlay()
 void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	RegenStamina();
 }
 
 /************************************Private Functions************************************/
@@ -56,15 +57,10 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
-void UStatsComponent::EnableStaminaRegen()
-{
-	bCanRegenStamina = true;
-}
+void UStatsComponent::EnableStaminaRegen() {bCanRegenStamina = true;}
 
 float UStatsComponent::GetStatPercentage(EStat current, EStat max) const
-{
-    return stats[current] / stats[max];
-}
+{return stats[current] / stats[max];}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
@@ -100,6 +96,7 @@ void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType d
 
 void UStatsComponent::ReduceStamina(float amount)
 {
+	if (bIsEnemy) {return;}
 	stats[EStat::Stamina] -= amount;
 	stats[EStat::Stamina] = UKismetMathLibrary::FClamp(stats[EStat::Stamina], 0, stats[EStat::MaxStamina]);
 
@@ -114,7 +111,7 @@ void UStatsComponent::ReduceStamina(float amount)
 
 void UStatsComponent::RegenStamina()
 {
-	if (!bCanRegenStamina) {return;}
+	if (!bCanRegenStamina || bIsEnemy) {return;}
 
 	stats[EStat::Stamina] = UKismetMathLibrary::FInterpTo_Constant(stats[EStat::Stamina],
 	stats[EStat::MaxStamina], GetWorld()->DeltaTimeSeconds, staminaRegenRate);

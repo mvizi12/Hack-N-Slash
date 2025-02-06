@@ -202,6 +202,20 @@ void ULockOnOffComponent::SetPlayerControlRotation()
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void ULockOnOffComponent::RotateToTarget(float interpSpeed)
+{
+	if (!IsValid(currentTargetActor)) {return;}
+
+	FVector playerLoc {ownerRef->GetActorLocation()};
+	FVector targetLoc {currentTargetActor->GetActorLocation()};
+	FRotator playerRot {ownerRef->GetActorRotation()};
+	FRotator desiredRot {UKismetMathLibrary::FindLookAtRotation(playerLoc, targetLoc)};
+	desiredRot.Roll = playerRot.Roll;
+	desiredRot.Pitch = playerRot.Pitch;
+	desiredRot = UKismetMathLibrary::RInterpTo_Constant(playerRot, desiredRot, GetWorld()->GetDeltaSeconds(), interpSpeed);
+	ownerRef->SetActorRotation(desiredRot);
+}
+
 void ULockOnOffComponent::ToggleLockOnOff()
 {
 	if (bLockedOn) {LockOff();}
@@ -234,6 +248,8 @@ void ULockOnOffComponent::FindActorsToLockOnTo(float yaw)
 	else {FindClosestEnemy(startLocation);}
 	LockOn();
 }
+
+AActor *ULockOnOffComponent::GetCurrentTarget() const {return currentTargetActor;}
 
 bool ULockOnOffComponent::GetLockedOn() {return bLockedOn;}
 

@@ -23,7 +23,10 @@ private:
 	UAnimMontage* GetHitReactionMontage(EDamageType) const;
 
 protected:
-	virtual void BeginPlay() override;\
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bIsEnemy {false};
 
 	UPROPERTY(VisibleAnywhere)
 	bool bCanRegenStamina {true};
