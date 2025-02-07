@@ -26,6 +26,8 @@ private:
 	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
 
+	float yDir {0.0f}; //Vertical direction the player is holding on the left stick
+
 	bool CanAttack();
 
 	//UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1) should stop these 2 functions from returning nullptr
@@ -34,6 +36,7 @@ private:
 	void PerformAttack(bool); //Performs light or heavy attack
 	void PerformComboExtender();
 	void PerformComboStarter();
+	void PerformLaunchAttack();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -51,6 +54,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> comboExtenderMontages;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* launchMeleeMontage;
+
 	UPROPERTY(VisibleAnywhere)
 	int comboCounter {0};
 
@@ -63,10 +69,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float heavyMeleeStaminaCost {8.0f};
 
+	UPROPERTY(EditDefaultsOnly)
+	float launchMeleeStaminaCost {5.0f};
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void LightAttack();
+	void LightAttack(float y);
 
 	UFUNCTION(BlueprintCallable)
 	void HeavyAttack();

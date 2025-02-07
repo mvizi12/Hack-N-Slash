@@ -104,16 +104,26 @@ void UCombatComponent::PerformComboStarter()
 	OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
 }
 
+void UCombatComponent::PerformLaunchAttack()
+{
+	if (launchMeleeMontage == nullptr) {return;}
+	iFighterRef->SetState(EState::Attack);
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Launch Attack"));}
+	characterRef->PlayAnimMontage(launchMeleeMontage);
+	OnAttackPerformedDelegate.Broadcast(launchMeleeStaminaCost);
+}
+
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
-void UCombatComponent::LightAttack()
+void UCombatComponent::LightAttack(float y)
 {
 	if (lightMeleeMontages.IsEmpty()) {return;}
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
 
 	bSavedHeavyAttack = false; //Bookeeping since we're performing a light attack; necessary for chaining heavy with light attacks
+	yDir = y;
 	OnResetDodgeBufferDelegate.Broadcast();
 
 	TArray<EState> states = {EState::Attack};
@@ -128,7 +138,8 @@ void UCombatComponent::LightAttack()
 	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
 	if (CanAttack())
 	{
-		if (!bHeavyAttack) {PerformAttack(true);}
+		if (yDir < 0) {PerformLaunchAttack();} //If player is holding back on left stick, perform launch attack
+		else if (!bHeavyAttack) {PerformAttack(true);}
 		else {PerformComboStarter();} //If a heavy attack was performed previosuly, this will be the start of a combo
 	}
 }
@@ -174,6 +185,7 @@ void UCombatComponent::HandleResetAttack()
 	bSavedLightAttack = false;
 	bSavedHeavyAttack = false;
 	bHeavyAttack = false; //Extra insurance
+	yDir = 0;
 }
 
 void UCombatComponent::ResetCombo()
@@ -194,7 +206,7 @@ void UCombatComponent::SaveLightAttack()
 	//So this serves as an extra layer of insurance
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(states)) {iFighterRef->SetState(EState::NoneState);}
-	LightAttack();
+	LightAttack(yDir);
 }
 
 void UCombatComponent::SaveHeavyAttack()

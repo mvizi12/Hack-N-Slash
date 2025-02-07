@@ -21,16 +21,6 @@ void UPlayerAnimInstance::UpdatePlayerPawn()
     movementComp = characterRef->GetCharacterMovement();
 }
 
-void UPlayerAnimInstance::UpdateCurrentAngle()
-{
-    if (!IsValid(playerPawn)) {return;}
-
-    UpdateVelocity();
-    FRotator currentRotation = playerPawn->GetActorRotation();
-    currentAngle = CalculateDirection(currentVeloctiy, currentRotation);
-    //UKismetAnimationLibrary::CalculateDirection(currentVeloctiy, currentRotation);
-}
-
 void UPlayerAnimInstance::UpdateCurrentSpeed()
 {
     if (!IsValid(playerPawn)) {return;}

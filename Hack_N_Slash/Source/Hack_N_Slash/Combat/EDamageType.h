@@ -11,6 +11,7 @@ UENUM(BlueprintType)
 	Back UMETA(DisplayName = "Back"),
 	KnockBack UMETA(DisplayName = "Knockback"),
 	KnockDown UMETA(DisplayName = "Knockdown"),
+	Launch UMETA(DisplayName = "Launch"),
 	Left UMETA(DisplayName = "Left"),
 	Middle UMETA(DisplayName = "Middle"),
 	Right UMETA(DisplayName = Right)

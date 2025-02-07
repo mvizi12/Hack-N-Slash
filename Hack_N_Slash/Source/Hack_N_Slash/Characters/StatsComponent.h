@@ -47,6 +47,9 @@ protected:
 	UAnimMontage* kdHitMontage;
 
 	UPROPERTY(EditAnywhere)
+	UAnimMontage* launchMontage;
+
+	UPROPERTY(EditAnywhere)
 	UAnimMontage* leftHitMontage;
 
 	UPROPERTY(EditAnywhere)

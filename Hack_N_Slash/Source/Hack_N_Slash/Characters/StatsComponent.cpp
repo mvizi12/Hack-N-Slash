@@ -41,6 +41,9 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 	case EDamageType::KnockDown:
 		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
 		return kdHitMontage;
+	case EDamageType::Launch:
+		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
+		return launchMontage;
 	case EDamageType::Left:
 		UE_LOG(LogTemp, Warning, TEXT("Left"));
 		return leftHitMontage;
@@ -88,8 +91,7 @@ void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType d
 	{
 		UAnimMontage* hurtMontage = GetHitReactionMontage(damageType);
 		iFighterRef->SetState(EState::HitStun);
-		if (hurtMontage == nullptr) {return;}
-		if (characterRef == nullptr) {return;}
+		if (characterRef == nullptr || hurtMontage == nullptr) {return;}
 		characterRef->PlayAnimMontage(hurtMontage);
 	}
 }

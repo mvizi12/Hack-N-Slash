@@ -19,16 +19,6 @@ void UEnemyBaseAnimInstance::UpdateEnemyPawn()
     movementComp = characterRef->GetCharacterMovement();
 }
 
-void UEnemyBaseAnimInstance::UpdateCurrentAngle()
-{
-    if (!IsValid(enemyPawn)) {return;}
-
-    UpdateVelocity();
-    FRotator currentRotation = enemyPawn->GetActorRotation();
-    currentAngle = CalculateDirection(currentVeloctiy, currentRotation);
-    //UKismetAnimationLibrary::CalculateDirection(currentVeloctiy, currentRotation);
-}
-
 void UEnemyBaseAnimInstance::UpdateCurrentSpeed()
 {
     if (!IsValid(enemyPawn)) {return;}

@@ -30,16 +30,10 @@ class HACK_N_SLASH_API UPlayerAnimInstance : public UAnimInstance
 		float currentSpeed {0.0f};
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		float currentAngle {0.0f};
-
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		bool bIsFalling {false};
 
 		UFUNCTION(BlueprintCallable)
 		void UpdatePlayerPawn();
-
-		UFUNCTION(BlueprintCallable)
-		void UpdateCurrentAngle();
 
 		UFUNCTION(BlueprintCallable)
 		void UpdateCurrentSpeed();
