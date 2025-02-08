@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetDodgeBufferSignature, UCombatComponent, OnResetDodgeBufferDelegate);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchCharSignature, UCombatComponent, OnLaunchCharDelegate, FVector, distance);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
@@ -75,6 +76,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
+	void LaunchChar(FVector distance, float interpSpeed);
+
+	UFUNCTION(BlueprintCallable)
 	void LightAttack(float y);
 
 	UFUNCTION(BlueprintCallable)
@@ -89,6 +93,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnResetDodgeBufferSignature OnResetDodgeBufferDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnLaunchCharSignature OnLaunchCharDelegate;
 
 	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

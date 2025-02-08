@@ -16,7 +16,7 @@ class HACK_N_SLASH_API ULaunchCharNotify : public UAnimNotify
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Notify")
-	FVector velocity;
+	FVector distance;
 	
 	virtual void Notify(USkeletalMeshComponent*, UAnimSequenceBase*, const FAnimNotifyEventReference&) override;
 };
