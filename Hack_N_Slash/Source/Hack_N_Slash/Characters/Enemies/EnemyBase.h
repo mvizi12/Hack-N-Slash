@@ -16,6 +16,7 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public IFighter, public I
 	
 private:
 	void NegateInvincibility();
+	class UCombatEnemyComponent* combatEnemyComp;
 	class UStatsComponent* statsComp;
 
 protected:
@@ -43,6 +44,7 @@ public:
 	virtual bool IsInvincible() const override;
 	UFUNCTION(BlueprintCallable)
 	virtual void HandleDeath() override;
+	virtual void LaunchFighter(FVector) override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
 

@@ -29,5 +29,6 @@ public:
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const {return false;}
 	virtual bool IsInvincible() const {return false;}
 	virtual void SetState(EState) {}
+	virtual void LaunchFighter(FVector) {}
 	virtual void SetInvincibility(bool, bool, float) {};
 };

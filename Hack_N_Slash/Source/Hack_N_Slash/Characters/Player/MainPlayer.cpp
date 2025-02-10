@@ -3,6 +3,7 @@
 
 #include "MainPlayer.h"
 //#include "GameFramework/Character.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\LockOnOffComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 
@@ -18,6 +19,7 @@ void AMainPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	characterRef = GetOwner<ACharacter>();
+	combatComp = FindComponentByClass<UCombatComponent>();
 	lockOnOffComp = FindComponentByClass<ULockOnOffComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
 }
@@ -80,6 +82,12 @@ bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const
 }
 
 bool AMainPlayer::IsInvincible() const {return bIsInvincible;}
+
+void AMainPlayer::LaunchFighter(FVector distance)
+{
+	if (combatComp == nullptr) {return;}
+	combatComp->OnLaunchPlayerDelegate.Broadcast(distance);
+}
 
 void AMainPlayer::SetState(EState state) {currentState = state;}
 

@@ -3,6 +3,7 @@
 
 #include "EnemyBase.h"
 #include "Components/CapsuleComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatEnemyComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 
@@ -17,6 +18,7 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	combatEnemyComp = FindComponentByClass<UCombatEnemyComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
 }
 
@@ -61,6 +63,12 @@ void AEnemyBase::HandleDeath()
 	if (!iPlayerRef) {return;}
 	iPlayerRef->EndLockOnWithActor(this);
 	/***************End the player's lock on to this enemy if they're locked on to them*******************/
+}
+
+void AEnemyBase::LaunchFighter(FVector distance)
+{
+	if (combatEnemyComp == nullptr) {return;}
+	combatEnemyComp->OnLaunchEnemyDelegate.Broadcast(distance);
 }
 
 void AEnemyBase::SetState(EState state) {currentState = state;}

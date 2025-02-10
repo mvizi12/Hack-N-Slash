@@ -20,6 +20,9 @@ class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 
 private:
 	ACharacter* characterRef;
+	class IFighter* iFighterRef;
+	class UCharacterMovementComponent* movementComp;
+
 	UAnimMontage* GetHitReactionMontage(EDamageType) const;
 
 protected:

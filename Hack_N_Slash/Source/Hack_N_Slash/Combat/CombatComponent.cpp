@@ -117,11 +117,11 @@ void UCombatComponent::PerformLaunchAttack()
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
-void UCombatComponent::LaunchChar(FVector distance, float interpSpeed)
+void UCombatComponent::LaunchPlayer(FVector distance, float lerpSpeed)
 {
 	FVector startLoc {characterRef->GetActorLocation()};
 	FVector desiredLoc {startLoc + distance};
-	FVector newLoc = UKismetMathLibrary::VLerp(startLoc, desiredLoc, interpSpeed);
+	FVector newLoc = UKismetMathLibrary::VLerp(startLoc, desiredLoc, lerpSpeed);
 	characterRef->SetActorLocation(newLoc, true);
 }
 
@@ -140,15 +140,12 @@ void UCombatComponent::LightAttack(float y)
 	{
 		//Save the input to buffer the next attack
 		bSavedLightAttack = true;
-		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Saved Light Attack"));}
 		return;
 	}
-	//Else Attempt to attack
-	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
 	if (CanAttack())
 	{
 		if (yDir < 0) {PerformLaunchAttack();} //If player is holding back on left stick, perform launch attack
-		else if (bHeavyAttack) {PerformComboStarter();} //If a heavy attack was performed previosuly, this will be the start of a combo
+		else if (bHeavyAttack) {PerformComboStarter();} //Else if a heavy attack was performed previosuly, this will be the start of a combo
 		else {PerformAttack(true);}
 	}
 }
@@ -168,11 +165,8 @@ void UCombatComponent::HeavyAttack()
 	{
 		//Save the input to buffer the next attack
 		bSavedHeavyAttack = true;
-		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Saved Heavy Attack"));}
 		return;
 	}
-	//Else Attempt to attack
-	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Heavy Attack"));}
 	if (CanAttack())
 	{
 		if (!bComboStarter) {PerformAttack(false);}
@@ -190,24 +184,23 @@ void UCombatComponent::ResetAttackBuffers()
 /************************************Public Functions************************************/
 void UCombatComponent::HandleResetAttack()
 {
-	iFighterRef->SetState(EState::NoneState); //Needed
+	iFighterRef->SetState(EState::NoneState);
 	bSavedLightAttack = false;
 	bSavedHeavyAttack = false;
-	bHeavyAttack = false; //Extra insurance
+	bHeavyAttack = false;
 	yDir = 0;
 	movementComp->SetMovementMode(EMovementMode::MOVE_Falling);
 }
 
 void UCombatComponent::ResetCombo()
 {
-	bComboStarter = false; //Extra insurance
-	comboStarterIndex = 0; //Needed
-	comboCounter = 0; //Needed
+	bComboStarter = false;
+	comboStarterIndex = 0;
+	comboCounter = 0;
 }
 
 void UCombatComponent::SaveLightAttack()
 {
-	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Calling SaveLightAttack"));}
 	if (!bSavedLightAttack) {return;}
 	bSavedLightAttack = false;
 
@@ -221,7 +214,6 @@ void UCombatComponent::SaveLightAttack()
 
 void UCombatComponent::SaveHeavyAttack()
 {
-	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Calling SaveHeavyAttack"));}
 	if (!bSavedHeavyAttack) {return;}
 	bSavedHeavyAttack = false;
 

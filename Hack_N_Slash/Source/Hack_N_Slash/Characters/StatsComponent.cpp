@@ -3,6 +3,7 @@
 
 #include "StatsComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
@@ -19,6 +20,8 @@ void UStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	characterRef = GetOwner<ACharacter>();
+	iFighterRef = Cast<IFighter>(characterRef);
+	movementComp = characterRef->GetCharacterMovement();
 }
 
 void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -42,7 +45,10 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
 		return kdHitMontage;
 	case EDamageType::Launch:
-		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
+		UE_LOG(LogTemp, Warning, TEXT("Launch"));
+		if (iFighterRef == nullptr) {return launchMontage;}
+		iFighterRef->LaunchFighter({0.0f, 0.0f, 100.0f});
+		movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
 		return launchMontage;
 	case EDamageType::Left:
 		UE_LOG(LogTemp, Warning, TEXT("Left"));
@@ -69,7 +75,6 @@ float UStatsComponent::GetStatPercentage(EStat current, EStat max) const
 /************************************Public Functions************************************/
 void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType damageType)
 {
-	IFighter* iFighterRef {GetOwner<IFighter>()};
 	if (iFighterRef == nullptr) {return;}
 
 	if (iFighterRef->IsInvincible()) {return;} //If fighter is invincible, return

@@ -16,6 +16,7 @@ class HACK_N_SLASH_API AMainPlayer : public ACharacter, public IMainPlayerI, pub
 
 private:
 	ACharacter* characterRef;
+	class UCombatComponent* combatComp;
 	class ULockOnOffComponent* lockOnOffComp;
 	class UStatsComponent* statsComp;
 
@@ -49,6 +50,7 @@ public:
 	virtual void HandleDeath() override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
 	virtual bool IsInvincible() const override;
+	virtual void LaunchFighter(FVector) override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
 
