@@ -110,12 +110,21 @@ void UCombatComponent::PerformLaunchAttack()
 	iFighterRef->SetState(EState::Attack);
 	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Launch Attack"));}
 	characterRef->PlayAnimMontage(launchMeleeMontage);
+	movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Player won't fall
 	OnAttackPerformedDelegate.Broadcast(launchMeleeStaminaCost);
 }
 
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void UCombatComponent::LaunchChar(FVector distance, float interpSpeed)
+{
+	FVector startLoc {characterRef->GetActorLocation()};
+	FVector desiredLoc {startLoc + distance};
+	FVector newLoc = UKismetMathLibrary::VLerp(startLoc, desiredLoc, interpSpeed);
+	characterRef->SetActorLocation(newLoc, true);
+}
+
 void UCombatComponent::LightAttack(float y)
 {
 	if (lightMeleeMontages.IsEmpty()) {return;}
@@ -139,8 +148,8 @@ void UCombatComponent::LightAttack(float y)
 	if (CanAttack())
 	{
 		if (yDir < 0) {PerformLaunchAttack();} //If player is holding back on left stick, perform launch attack
-		else if (!bHeavyAttack) {PerformAttack(true);}
-		else {PerformComboStarter();} //If a heavy attack was performed previosuly, this will be the start of a combo
+		else if (bHeavyAttack) {PerformComboStarter();} //If a heavy attack was performed previosuly, this will be the start of a combo
+		else {PerformAttack(true);}
 	}
 }
 
@@ -186,6 +195,7 @@ void UCombatComponent::HandleResetAttack()
 	bSavedHeavyAttack = false;
 	bHeavyAttack = false; //Extra insurance
 	yDir = 0;
+	movementComp->SetMovementMode(EMovementMode::MOVE_Falling);
 }
 
 void UCombatComponent::ResetCombo()
