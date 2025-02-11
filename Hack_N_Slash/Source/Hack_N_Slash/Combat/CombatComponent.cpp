@@ -155,12 +155,11 @@ void UCombatComponent::LightAttack(float y)
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
 	if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
 
-	bSavedHeavyAttack = false; //Bookeeping since we're performing a light attack; necessary for chaining heavy with light attacks
+	bSavedHeavyAttack = false; //Necessary for chaining heavy with light attacks
 	yDir = y;
 	OnResetDodgeBufferDelegate.Broadcast();
 
-	TArray<EState> states = {EState::Attack};
-	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates))
 	{
 		//Save the input to buffer the next attack
 		bSavedLightAttack = true;
@@ -170,7 +169,7 @@ void UCombatComponent::LightAttack(float y)
 	{
 		if (CanAerialAttack()) {PerformAttack(3);} //If Can perform an aerial attack, do it
 		else if (yDir < 0) {PerformLaunchAttack();} //Else if player is holding back on left stick, perform launch attack
-		else if (bHeavyAttack) {PerformComboStarter();} //Else if a heavy attack was performed previosuly, this will be the start of a combo
+		else if (bHeavyAttack) {PerformComboStarter();} //Else if a heavy attack was performed previously, this will be the start of a combo
 		else {PerformAttack(1);} //Else perform a light attack
 	}
 }
@@ -185,8 +184,7 @@ void UCombatComponent::HeavyAttack()
 	OnResetDodgeBufferDelegate.Broadcast();
 	bHeavyAttack = true;
 
-	TArray<EState> states = {EState::Attack};
-	if (iFighterRef->IsCurrentStateEqualToAny(states)) //If the fighter is currently attacking
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates))
 	{
 		//Save the input to buffer the next attack
 		bSavedHeavyAttack = true;
@@ -249,8 +247,7 @@ void UCombatComponent::SaveLightAttack()
 	//Decides wether or not the state should be reset
 	//In large combat systems there's gonna be times when a variable is set even though you don't want it
 	//So this serves as an extra layer of insurance
-	TArray<EState> states = {EState::Attack};
-	if (iFighterRef->IsCurrentStateEqualToAny(states)) {iFighterRef->SetState(EState::NoneState);}
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
 	LightAttack(yDir);
 }
 
@@ -263,7 +260,7 @@ void UCombatComponent::SaveHeavyAttack()
 	//In large combat systems there's gonna be times when a variable is set even though you don't want it
 	//So this serves as an extra layer of insurance
 	TArray<EState> states = {EState::Attack};
-	if (iFighterRef->IsCurrentStateEqualToAny(states)) {iFighterRef->SetState(EState::NoneState);}
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
 	HeavyAttack();
 }
 /************************************Public Functions************************************/

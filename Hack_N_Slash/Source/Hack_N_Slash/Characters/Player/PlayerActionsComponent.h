@@ -56,6 +56,9 @@ protected:
 	void Look(float yaw, float pitch);
 
 	UFUNCTION(BlueprintCallable)
+	void Move(float yaw, float pitch);
+
+	UFUNCTION(BlueprintCallable)
 	void ResetDodgeBuffer(); //For other to call via an event
 
 public:

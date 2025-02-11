@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\EState.h"
 #include "CombatComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
@@ -47,6 +48,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
+
+	UPROPERTY(EditAnywhere)
+	TArray<EState> attackCancelableStates {EState::Attack};
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> lightMeleeMontages;
