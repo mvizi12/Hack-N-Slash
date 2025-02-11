@@ -35,8 +35,10 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 bool UCombatComponent::CanAttack()
 {
     TArray<EState> invalidAttackStates = {EState::Attack, EState::Death, EState::Dodge, EState::HitStun}; //States the player isn't allowed to attack
-	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();
+	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates);
 }
+
+bool UCombatComponent::CanAerialAttack() {return bCanAerialAttack && (movementComp->MovementMode == MOVE_Flying || movementComp->MovementMode == MOVE_Falling);}
 
 UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
 {
@@ -51,10 +53,12 @@ UAnimMontage* UCombatComponent::GetComboStarterAnimMontage()
     return comboStarterMontages[temp];
 }
 
-void UCombatComponent::PerformAttack(bool light)
+void UCombatComponent::PerformAttack(int flag)
 {
 	iFighterRef->SetState(EState::Attack);
-	if (light)
+	switch (flag)
+	{
+	case 1: //Light attack
 	{
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Light Attack"));}
 		characterRef->PlayAnimMontage(lightMeleeMontages[comboCounter]);
@@ -62,8 +66,9 @@ void UCombatComponent::PerformAttack(bool light)
 		int maxCombo {lightMeleeMontages.Num()};
 		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
 		OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
+		break;
 	}
-	else
+	case 2: //Heavy Attack
 	{
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Heavy Attack"));}
 		characterRef->PlayAnimMontage(heavyMeleeMontages[comboCounter]);
@@ -71,6 +76,24 @@ void UCombatComponent::PerformAttack(bool light)
 		int maxCombo {heavyMeleeMontages.Num()};
 		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
 		OnAttackPerformedDelegate.Broadcast(heavyMeleeStaminaCost);
+		break;
+	}
+	case 3: //Aerial Attack
+	{
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Aerial Attack"));}
+		movementComp->SetMovementMode(MOVE_Flying); //So the player won't fall
+		movementComp->Velocity = FVector::ZeroVector; //To prevent the player from floating around
+		characterRef->PlayAnimMontage(aerialMeleeMontages[comboCounter]);
+		++comboCounter;
+		if (comboCounter >= aerialMeleeMontages.Num()) {bCanAerialAttack = false;} //Restricts aerial combat to 1 full combo
+		int maxCombo {aerialMeleeMontages.Num()};
+		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
+		OnAttackPerformedDelegate.Broadcast(aerialMeleeStaminaCost);
+		break;
+	}
+	default:
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Default switch"));}
+		break;
 	}
 }
 
@@ -112,6 +135,7 @@ void UCombatComponent::PerformLaunchAttack()
 	characterRef->PlayAnimMontage(launchMeleeMontage);
 	movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Player won't fall
 	OnAttackPerformedDelegate.Broadcast(launchMeleeStaminaCost);
+	comboCounter = 0;
 }
 
 /************************************Private Functions************************************/
@@ -144,9 +168,10 @@ void UCombatComponent::LightAttack(float y)
 	}
 	if (CanAttack())
 	{
-		if (yDir < 0) {PerformLaunchAttack();} //If player is holding back on left stick, perform launch attack
+		if (CanAerialAttack()) {PerformAttack(3);} //If Can perform an aerial attack, do it
+		else if (yDir < 0) {PerformLaunchAttack();} //Else if player is holding back on left stick, perform launch attack
 		else if (bHeavyAttack) {PerformComboStarter();} //Else if a heavy attack was performed previosuly, this will be the start of a combo
-		else {PerformAttack(true);}
+		else {PerformAttack(1);} //Else perform a light attack
 	}
 }
 
@@ -169,7 +194,7 @@ void UCombatComponent::HeavyAttack()
 	}
 	if (CanAttack())
 	{
-		if (!bComboStarter) {PerformAttack(false);}
+		if (!bComboStarter) {PerformAttack(2);}
 		else {PerformComboExtender();}
 	}
 }
@@ -179,17 +204,34 @@ void UCombatComponent::ResetAttackBuffers()
 	bSavedLightAttack = false;
 	bSavedHeavyAttack = false;
 }
+
+void UCombatComponent::TryResetAttack()
+{
+	if (!bCanResetAttack) {return;}
+	bCanResetAttack = false;
+	movementComp->SetMovementMode(MOVE_Walking);
+	HandleResetAttack();
+}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
 void UCombatComponent::HandleResetAttack()
 {
-	iFighterRef->SetState(EState::NoneState);
-	bSavedLightAttack = false;
-	bSavedHeavyAttack = false;
-	bHeavyAttack = false;
-	yDir = 0;
-	movementComp->SetMovementMode(EMovementMode::MOVE_Falling);
+	//Ensures that if the player is in the air, we only reset their state when they hit the ground
+	if (movementComp->MovementMode == MOVE_Flying)
+	{
+		movementComp->SetMovementMode(MOVE_Falling);
+		bCanResetAttack = true;
+	}
+	else if (movementComp->MovementMode != MOVE_Falling)
+	{
+		iFighterRef->SetState(EState::NoneState);
+		bSavedLightAttack = false;
+		bSavedHeavyAttack = false;
+		bCanAerialAttack = true;
+		bHeavyAttack = false;
+		yDir = 0;
+	}
 }
 
 void UCombatComponent::ResetCombo()

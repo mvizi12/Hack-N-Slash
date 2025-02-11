@@ -25,16 +25,18 @@ private:
 	bool bSavedHeavyAttack {false};
 
 	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
+	bool bCanAerialAttack {true}; //Flag to let the system know if aerial attacks are allowed
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
 
 	float yDir {0.0f}; //Vertical direction the player is holding on the left stick
 
 	bool CanAttack();
+	bool CanAerialAttack();
 
 	//UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1) should stop these 2 functions from returning nullptr
 	UAnimMontage* GetComboExtenderAnimMontage();
 	UAnimMontage* GetComboStarterAnimMontage();
-	void PerformAttack(bool); //Performs light or heavy attack
+	void PerformAttack(int); //Performs light or heavy attack
 	void PerformComboExtender();
 	void PerformComboStarter();
 	void PerformLaunchAttack();
@@ -42,6 +44,9 @@ private:
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> lightMeleeMontages;
@@ -54,6 +59,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> comboExtenderMontages;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> aerialMeleeMontages;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* launchMeleeMontage;
@@ -73,6 +81,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float launchMeleeStaminaCost {5.0f};
 
+	UPROPERTY(EditDefaultsOnly)
+	float aerialMeleeStaminaCost {5.0f};
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
@@ -86,6 +97,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ResetAttackBuffers();
+
+	UFUNCTION(BlueprintCallable)
+	void TryResetAttack();
 
 public:
 	UPROPERTY(BlueprintAssignable)

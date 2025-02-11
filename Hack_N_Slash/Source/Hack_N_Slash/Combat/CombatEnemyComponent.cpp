@@ -44,6 +44,6 @@ void UCombatEnemyComponent::LaunchEnemy(FVector distance, float lerpSpeed)
 void UCombatEnemyComponent::HandleResetAttack()
 {
 	iFighterRef->SetState(EState::NoneState);
-	movementComp->SetMovementMode(EMovementMode::MOVE_Falling);
+	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
 }
 /************************************Public Functions************************************/
