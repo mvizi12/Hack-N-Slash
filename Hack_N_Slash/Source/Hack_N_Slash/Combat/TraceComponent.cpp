@@ -64,8 +64,8 @@ void UTraceComponent::WeaponTrace(TSubclassOf<UDamageTypeMain> damageType, float
 	FVector endLocation = traceDistance * ownerRef->GetActorForwardVector() + startLocation;
 	TArray<AActor*> temp {ownerRef}; //Ignore self
 
-	if (bDebugMode) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 1.0f);}
-	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green);}
+	if (bDebugMode) {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::ForDuration, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
+	else {bool targetFound = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), startLocation, endLocation, traceRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1), false, temp, EDrawDebugTrace::None, outHits, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
 
 	if (outHits.Num() <= 0) {return;}
 	HandleDamage(damageType, outHits, damage);
