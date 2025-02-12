@@ -52,15 +52,27 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 		return launchMontage;
 	case EDamageType::Left:
 		UE_LOG(LogTemp, Warning, TEXT("Left"));
-		if (movementComp->IsFlying() || movementComp->IsFalling()) {return launchMontage;}
+		if (movementComp->IsFlying() || movementComp->IsFalling())
+		{
+			movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
+			return launchMontage;
+		}
 		return leftHitMontage;
 	case EDamageType::Middle:
 		UE_LOG(LogTemp, Warning, TEXT("Middle"));
-		if (movementComp->IsFlying() || movementComp->IsFalling()) {return launchMontage;}
+		if (movementComp->IsFlying() || movementComp->IsFalling())
+		{
+			movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
+			return launchMontage;
+		}
 		return middleHitMontage;
 	case EDamageType::Right:
 		UE_LOG(LogTemp, Warning, TEXT("Right"));
-		if (movementComp->IsFlying() || movementComp->IsFalling()) {return launchMontage;}
+		if (movementComp->IsFlying() || movementComp->IsFalling())
+		{
+			movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
+			return launchMontage;
+		}
 		return rightHitMontage;
 	default:
 		return nullptr;
@@ -101,7 +113,7 @@ void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType d
 		iFighterRef->SetState(EState::HitStun);
 		if (characterRef == nullptr || hurtMontage == nullptr) {return;}
 		//If hit in the air, stop moving temporarily
-		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->Velocity = FVector::Zero();}
+		//if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->Velocity = FVector::ZeroVector;}
 		//Maybe buffer enemy here (Meaning push the character a certain distance and direction)
 		characterRef->PlayAnimMontage(hurtMontage);
 	}
