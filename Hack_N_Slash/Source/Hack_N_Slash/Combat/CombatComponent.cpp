@@ -32,13 +32,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 }
 
 /************************************Private Functions************************************/
-bool UCombatComponent::CanAttack()
-{
-    TArray<EState> invalidAttackStates = {EState::Attack, EState::Death, EState::Dodge, EState::HitStun}; //States the player isn't allowed to attack
-	return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates);
-}
+bool UCombatComponent::CanAttack() {return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();}
 
-bool UCombatComponent::CanAerialAttack() {return bCanAerialAttack && (movementComp->MovementMode == MOVE_Flying || movementComp->MovementMode == MOVE_Falling);}
+bool UCombatComponent::CanAerialAttack() {return bCanAerialAttack && movementComp->MovementMode == MOVE_Flying;}
 
 UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
 {
@@ -81,13 +77,12 @@ void UCombatComponent::PerformAttack(int flag)
 	case 3: //Aerial Attack
 	{
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Aerial Attack"));}
-		movementComp->SetMovementMode(MOVE_Flying); //So the player won't fall
-		movementComp->Velocity = FVector::ZeroVector; //To prevent the player from floating around
+		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("Combo Counter: %d"), comboCounter));}
 		characterRef->PlayAnimMontage(aerialMeleeMontages[comboCounter]);
 		++comboCounter;
-		if (comboCounter >= aerialMeleeMontages.Num()) {bCanAerialAttack = false;} //Restricts aerial combat to 1 full combo
 		int maxCombo {aerialMeleeMontages.Num()};
 		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
+		if (comboCounter == 0) {bCanAerialAttack = false;} //Restricts aerial combat to 1 full combo
 		OnAttackPerformedDelegate.Broadcast(aerialMeleeStaminaCost);
 		break;
 	}
@@ -132,10 +127,10 @@ void UCombatComponent::PerformLaunchAttack()
 	if (launchMeleeMontage == nullptr) {return;}
 	iFighterRef->SetState(EState::Attack);
 	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Launch Attack"));}
+	ResetCombo();
 	characterRef->PlayAnimMontage(launchMeleeMontage);
 	movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Player won't fall
 	OnAttackPerformedDelegate.Broadcast(launchMeleeStaminaCost);
-	comboCounter = 0;
 }
 
 /************************************Private Functions************************************/

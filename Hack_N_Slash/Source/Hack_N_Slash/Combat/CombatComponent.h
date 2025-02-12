@@ -49,8 +49,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TArray<EState> attackCancelableStates {EState::Attack};
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<EState> invalidAttackStates {EState::Attack, EState::Death, EState::Dodge, EState::HitStun};
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> lightMeleeMontages;

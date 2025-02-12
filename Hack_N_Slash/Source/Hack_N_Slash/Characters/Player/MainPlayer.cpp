@@ -36,10 +36,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 }
 
 /************************************Private Functions************************************/
-void AMainPlayer::NegateInvincibility()
-{
-	bIsInvincible = !bIsInvincible;
-}
+void AMainPlayer::NegateInvincibility() {bIsInvincible = !bIsInvincible;}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
@@ -76,10 +73,7 @@ bool AMainPlayer::HasEnoughStamina(float staminaCost)
     return statsComp->stats[EStat::Stamina] >= staminaCost;
 }
 
-bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const
-{
-	return states.Contains(currentState);
-}
+bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const {return states.Contains(currentState);}
 
 bool AMainPlayer::IsInvincible() const {return bIsInvincible;}
 

@@ -47,7 +47,7 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 	case EDamageType::Launch:
 		UE_LOG(LogTemp, Warning, TEXT("Launch"));
 		if (iFighterRef == nullptr) {return launchMontage;}
-		iFighterRef->LaunchFighter({0.0f, 0.0f, 100.0f});
+		iFighterRef->LaunchFighter({0.0f, 0.0f, 101.0f});
 		movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
 		return launchMontage;
 	case EDamageType::Left:
