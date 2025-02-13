@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "SaveDodgeNS.generated.h"
+#include "IsGroundedNS.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HACK_N_SLASH_API USaveDodgeNS : public UAnimNotifyState
+class HACK_N_SLASH_API UIsGroundedNS : public UAnimNotifyState
 {
 	GENERATED_BODY()
 

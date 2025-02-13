@@ -2,6 +2,7 @@
 
 
 #include "EnemyBase.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatEnemyComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
@@ -17,7 +18,8 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	movementComp = GetCharacterMovement();
 	combatEnemyComp = FindComponentByClass<UCombatEnemyComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
 }
@@ -32,6 +34,14 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+/************************************Private Functions************************************/
+void AEnemyBase::NegateInvincibility() {bIsInvincible = !bIsInvincible;}
+/************************************Private Functions************************************/
+
+/************************************Protected Functions************************************/
+/************************************Protected Functions************************************/
+
+/************************************Public Functions************************************/
 EState AEnemyBase::GetState() const {return currentState;}
 
 float AEnemyBase::GetStrength() const
@@ -41,6 +51,8 @@ float AEnemyBase::GetStrength() const
 }
 
 bool AEnemyBase::IsCurrentStateEqualToAny(TArray<EState> states) const {return states.Contains(currentState);}
+
+bool AEnemyBase::IsGrounded() const {return movementComp->IsMovingOnGround();}
 
 bool AEnemyBase::IsInvincible() const {return bIsInvincible;}
 
@@ -71,7 +83,13 @@ void AEnemyBase::LaunchFighter(FVector distance)
 	combatEnemyComp->OnLaunchEnemyDelegate.Broadcast(distance);
 }
 
-void AEnemyBase::SetState(EState state) {currentState = state;}
+void AEnemyBase::ResumeKnockedDBMontage()
+{
+	if (statsComp == nullptr) {return;}
+	statsComp->ResumeLoopedMontage();
+}
+
+void AEnemyBase::SetState(EState state) { currentState = state; }
 
 void AEnemyBase::SetInvincibility(bool invincible, bool indefinite, float duration = 0.0f)
 {
@@ -82,15 +100,4 @@ void AEnemyBase::SetInvincibility(bool invincible, bool indefinite, float durati
 	GetWorldTimerManager().SetTimer(InvincibleTimerHandle, this, &AEnemyBase::NegateInvincibility, duration, false);
 }
 
-/************************************Private Functions************************************/
-void AEnemyBase::NegateInvincibility()
-{
-	bIsInvincible = !bIsInvincible;
-}
-/************************************Private Functions************************************/
-
-/************************************Protected Functions************************************/
-/************************************Protected Functions************************************/
-
-/************************************Public Functions************************************/
 /************************************Public Functions************************************/

@@ -16,6 +16,7 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public IFighter, public I
 	
 private:
 	void NegateInvincibility();
+	class UCharacterMovementComponent* movementComp;
 	class UCombatEnemyComponent* combatEnemyComp;
 	class UStatsComponent* statsComp;
 
@@ -41,10 +42,13 @@ public:
 	virtual EState GetState() const override;
 	virtual float GetStrength() const override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
+	virtual bool IsGrounded() const override;
 	virtual bool IsInvincible() const override;
 	UFUNCTION(BlueprintCallable)
 	virtual void HandleDeath() override;
 	virtual void LaunchFighter(FVector) override;
+	//Continues after the looped section of the knocked down or back animation montage
+	virtual void ResumeKnockedDBMontage() override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
 

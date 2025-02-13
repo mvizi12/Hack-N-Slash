@@ -27,6 +27,7 @@ private:
 
 	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
 	bool bCanAerialAttack {true}; //Flag to let the system know if aerial attacks are allowed
+	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
 
 	float yDir {0.0f}; //Vertical direction the player is holding on the left stick
@@ -45,9 +46,6 @@ private:
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode;
-
-	UPROPERTY(VisibleAnywhere)
-	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<EState> attackCancelableStates {EState::Attack};
@@ -105,9 +103,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ResetAttackBuffers();
 
-	UFUNCTION(BlueprintCallable)
-	void TryResetAttack();
-
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackPerformedSignature OnAttackPerformedDelegate;
@@ -130,4 +125,7 @@ public:
 	void SaveLightAttack(); //Public so animations can call it
 
 	void SaveHeavyAttack(); //Public so animations can call it
+
+	UFUNCTION(BlueprintCallable)
+	void TryResetAttack();
 };

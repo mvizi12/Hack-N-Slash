@@ -197,14 +197,6 @@ void UCombatComponent::ResetAttackBuffers()
 	bSavedLightAttack = false;
 	bSavedHeavyAttack = false;
 }
-
-void UCombatComponent::TryResetAttack()
-{
-	if (!bCanResetAttack) {return;}
-	bCanResetAttack = false;
-	movementComp->SetMovementMode(MOVE_Walking);
-	HandleResetAttack();
-}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
@@ -257,5 +249,14 @@ void UCombatComponent::SaveHeavyAttack()
 	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
 	HeavyAttack();
+}
+
+void UCombatComponent::TryResetAttack()
+{
+	iFighterRef->ResumeKnockedDBMontage();
+	if (!bCanResetAttack) {return;}
+	bCanResetAttack = false;
+	movementComp->SetMovementMode(MOVE_Walking);
+	HandleResetAttack();
 }
 /************************************Public Functions************************************/

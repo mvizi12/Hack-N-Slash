@@ -31,7 +31,7 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 }
 
 /************************************Private Functions************************************/
-UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) const
+UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType)
 {
     switch (damageType)
 	{
@@ -39,27 +39,24 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 		UE_LOG(LogTemp, Warning, TEXT("Default"));
 		return nullptr;
 	case EDamageType::KnockBack:
-		UE_LOG(LogTemp, Warning, TEXT("Knockback"));
+		knockedBack = true;
+		if (movementComp->IsFlying()) {movementComp->SetMovementMode(MOVE_Falling);}
 		return kbHitMontage;
 	case EDamageType::KnockDown:
-		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
+		knockedDown = true;
+		if (movementComp->IsFlying()) {movementComp->SetMovementMode(MOVE_Falling);}
 		return kdHitMontage;
 	case EDamageType::Launch:
-		UE_LOG(LogTemp, Warning, TEXT("Launch"));
 		if (iFighterRef == nullptr) {return nullptr;}
-		iFighterRef->LaunchFighter({0.0f, 0.0f, 101.0f});
 		movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
 		return launchMontage;
 	case EDamageType::Left:
-		UE_LOG(LogTemp, Warning, TEXT("Left"));
-		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(EMovementMode::MOVE_Flying);}
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return leftHitMontage;
 	case EDamageType::Middle:
-		UE_LOG(LogTemp, Warning, TEXT("Middle"));
-		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(EMovementMode::MOVE_Flying);}
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return middleHitMontage;
 	case EDamageType::Right:
-		UE_LOG(LogTemp, Warning, TEXT("Right"));
 		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return rightHitMontage;
 	default:
@@ -100,9 +97,7 @@ void UStatsComponent::ReduceHealth(float damage, FVector buffer, AActor *opponen
 		UAnimMontage* hurtMontage = GetHitReactionMontage(damageType);
 		iFighterRef->SetState(EState::HitStun);
 		if (characterRef == nullptr || hurtMontage == nullptr) {return;}
-		//If hit in the air, stop moving temporarily
-		//if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->Velocity = FVector::ZeroVector;}
-		//Maybe buffer enemy here (Meaning push the character a certain distance and direction)
+		iFighterRef->LaunchFighter(buffer); //Launch the character in the specified direction
 		characterRef->PlayAnimMontage(hurtMontage);
 	}
 }
@@ -130,5 +125,22 @@ void UStatsComponent::RegenStamina()
 	stats[EStat::MaxStamina], GetWorld()->DeltaTimeSeconds, staminaRegenRate);
 
 	OnStaminaPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
+}
+
+void UStatsComponent::ResumeLoopedMontage()
+{
+	if (knockedDown)
+	{
+		movementComp->SetMovementMode(MOVE_Walking);
+		characterRef->PlayAnimMontage(kdHitMontage, kdHitMontage->RateScale, TEXT("HitGround"));
+		knockedDown = false;
+	}
+	/*else if (knockedBack)
+	{
+		movementComp->SetMovementMode(MOVE_Walking);
+		characterRef->PlayAnimMontage(kbHitMontage, kbHitMontage->RateScale, TEXT("HitGround"));
+		knockedBack = false;
+	}*/
+
 }
 /************************************Public Functions************************************/

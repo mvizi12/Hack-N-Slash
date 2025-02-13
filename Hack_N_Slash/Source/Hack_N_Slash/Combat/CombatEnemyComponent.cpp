@@ -43,7 +43,21 @@ void UCombatEnemyComponent::LaunchEnemy(FVector distance, float lerpSpeed)
 /************************************Public Functions************************************/
 void UCombatEnemyComponent::HandleResetAttack()
 {
-	iFighterRef->SetState(EState::NoneState);
-	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
+	//Ensures that if the player is in the air, we only reset their state when they hit the ground
+	if (movementComp->MovementMode == MOVE_Flying)
+	{
+		movementComp->SetMovementMode(MOVE_Falling);
+		bCanResetAttack = true;
+	}
+	else if (movementComp->MovementMode != MOVE_Falling) {iFighterRef->SetState(EState::NoneState);}
+}
+
+void UCombatEnemyComponent::TryResetAttack()
+{
+	iFighterRef->ResumeKnockedDBMontage();
+	if (!bCanResetAttack) {return;}
+	bCanResetAttack = false;
+	movementComp->SetMovementMode(MOVE_Walking);
+	HandleResetAttack();
 }
 /************************************Public Functions************************************/

@@ -23,7 +23,10 @@ private:
 	class IFighter* iFighterRef;
 	class UCharacterMovementComponent* movementComp;
 
-	UAnimMontage* GetHitReactionMontage(EDamageType) const;
+	bool knockedBack {false}; //Flag to let the system know if the character has been knocked back
+	bool knockedDown {false}; //Flag to let the system know if the character has been knocked down
+
+	UAnimMontage* GetHitReactionMontage(EDamageType);
 
 protected:
 	virtual void BeginPlay() override;
@@ -91,4 +94,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void RegenStamina();
+
+	void ResumeLoopedMontage();
 };
