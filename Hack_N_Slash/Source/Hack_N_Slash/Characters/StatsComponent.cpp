@@ -46,33 +46,21 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 		return kdHitMontage;
 	case EDamageType::Launch:
 		UE_LOG(LogTemp, Warning, TEXT("Launch"));
-		if (iFighterRef == nullptr) {return launchMontage;}
+		if (iFighterRef == nullptr) {return nullptr;}
 		iFighterRef->LaunchFighter({0.0f, 0.0f, 101.0f});
 		movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
 		return launchMontage;
 	case EDamageType::Left:
 		UE_LOG(LogTemp, Warning, TEXT("Left"));
-		if (movementComp->IsFlying() || movementComp->IsFalling())
-		{
-			movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
-			return launchMontage;
-		}
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(EMovementMode::MOVE_Flying);}
 		return leftHitMontage;
 	case EDamageType::Middle:
 		UE_LOG(LogTemp, Warning, TEXT("Middle"));
-		if (movementComp->IsFlying() || movementComp->IsFalling())
-		{
-			movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
-			return launchMontage;
-		}
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(EMovementMode::MOVE_Flying);}
 		return middleHitMontage;
 	case EDamageType::Right:
 		UE_LOG(LogTemp, Warning, TEXT("Right"));
-		if (movementComp->IsFlying() || movementComp->IsFalling())
-		{
-			movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
-			return launchMontage;
-		}
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return rightHitMontage;
 	default:
 		return nullptr;
