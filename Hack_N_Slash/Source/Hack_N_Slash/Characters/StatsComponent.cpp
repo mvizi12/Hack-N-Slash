@@ -76,7 +76,7 @@ float UStatsComponent::GetStatPercentage(EStat current, EStat max) const
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
-void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType damageType)
+void UStatsComponent::ReduceHealth(float damage, FVector buffer, AActor *opponent, EDamageType damageType)
 {
 	if (iFighterRef == nullptr) {return;}
 
