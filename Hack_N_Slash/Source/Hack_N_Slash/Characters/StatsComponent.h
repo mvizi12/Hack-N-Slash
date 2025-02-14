@@ -20,7 +20,13 @@ class HACK_N_SLASH_API UStatsComponent : public UActorComponent
 
 private:
 	ACharacter* characterRef;
-	UAnimMontage* GetHitReactionMontage(EDamageType) const;
+	class IFighter* iFighterRef;
+	class UCharacterMovementComponent* movementComp;
+
+	bool knockedBack {false}; //Flag to let the system know if the character has been knocked back
+	bool knockedDown {false}; //Flag to let the system know if the character has been knocked down
+
+	UAnimMontage* GetHitReactionMontage(EDamageType);
 
 protected:
 	virtual void BeginPlay() override;
@@ -81,11 +87,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	void ReduceHealth(float damage, AActor* opponent, EDamageType damageType);
+	void ReduceHealth(float damage, FVector buffer, AActor* opponent, EDamageType damageType);
 
 	UFUNCTION(BlueprintCallable)
 	void ReduceStamina(float amount);
 
 	UFUNCTION(BlueprintCallable)
 	void RegenStamina();
+
+	void ResumeLoopedMontage();
 };

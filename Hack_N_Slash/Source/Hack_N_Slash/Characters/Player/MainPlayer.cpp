@@ -2,7 +2,8 @@
 
 
 #include "MainPlayer.h"
-//#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\LockOnOffComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 
@@ -17,7 +18,8 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	characterRef = GetOwner<ACharacter>();
+	movementComp = GetCharacterMovement();
+	combatComp = FindComponentByClass<UCombatComponent>();
 	lockOnOffComp = FindComponentByClass<ULockOnOffComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
 }
@@ -34,10 +36,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 }
 
 /************************************Private Functions************************************/
-void AMainPlayer::NegateInvincibility()
-{
-	bIsInvincible = !bIsInvincible;
-}
+void AMainPlayer::NegateInvincibility() {bIsInvincible = !bIsInvincible;}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
@@ -63,9 +62,9 @@ void AMainPlayer::HandleDeath()
 {
 	SetState(EState::Death);
 	DisableInput(GetController<APlayerController>());
-	if (characterRef == nullptr) {return;}
 	if (deathMontage != nullptr) {PlayAnimMontage(deathMontage);}
-	characterRef->SetActorEnableCollision(false);
+	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
+	if ((movementComp->MovementMode != MOVE_Flying && movementComp->MovementMode != MOVE_Falling)) {SetActorEnableCollision(false);}
 }
 
 bool AMainPlayer::HasEnoughStamina(float staminaCost)
@@ -74,14 +73,29 @@ bool AMainPlayer::HasEnoughStamina(float staminaCost)
     return statsComp->stats[EStat::Stamina] >= staminaCost;
 }
 
-bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const
-{
-	return states.Contains(currentState);
-}
+bool AMainPlayer::IsCurrentStateEqualToAny(TArray<EState> states) const {return states.Contains(currentState);}
+
+bool AMainPlayer::IsGrounded() const {return movementComp->IsMovingOnGround();}
 
 bool AMainPlayer::IsInvincible() const {return bIsInvincible;}
 
-void AMainPlayer::SetState(EState state) {currentState = state;}
+void AMainPlayer::LaunchFighter(FVector distance)
+{
+	if (combatComp == nullptr) {return;}
+	combatComp->OnLaunchPlayerDelegate.Broadcast(distance);
+}
+
+void AMainPlayer::ResumeKnockedDBMontage()
+{
+	if (statsComp == nullptr) {return;}
+	statsComp->ResumeLoopedMontage();
+}
+
+void AMainPlayer::SetState(EState state)
+{
+	if (currentState == EState::Death || currentState == state) {return;}
+	currentState = state;
+}
 
 void AMainPlayer::SetInvincibility(bool invincible, bool indefinite, float duration = 0.0f)
 {

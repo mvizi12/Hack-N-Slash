@@ -2,6 +2,7 @@
 #include "CombatEnemyComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
 
 // Sets default values for this component's properties
@@ -30,11 +31,33 @@ void UCombatEnemyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void UCombatEnemyComponent::LaunchEnemy(FVector distance, float lerpSpeed)
+{
+	FVector startLoc {characterRef->GetActorLocation()};
+	FVector desiredLoc {startLoc + distance};
+	FVector newLoc = UKismetMathLibrary::VLerp(startLoc, desiredLoc, lerpSpeed);
+	characterRef->SetActorLocation(newLoc, true);
+}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
 void UCombatEnemyComponent::HandleResetAttack()
 {
-	iFighterRef->SetState(EState::NoneState); //Needed
+	//Ensures that if the player is in the air, we only reset their state when they hit the ground
+	if (movementComp->MovementMode == MOVE_Flying)
+	{
+		movementComp->SetMovementMode(MOVE_Falling);
+		bCanResetAttack = true;
+	}
+	else if (movementComp->MovementMode != MOVE_Falling) {iFighterRef->SetState(EState::NoneState);}
+}
+
+void UCombatEnemyComponent::TryResetAttack()
+{
+	iFighterRef->ResumeKnockedDBMontage();
+	if (!bCanResetAttack) {return;}
+	bCanResetAttack = false;
+	movementComp->SetMovementMode(MOVE_Walking);
+	HandleResetAttack();
 }
 /************************************Public Functions************************************/

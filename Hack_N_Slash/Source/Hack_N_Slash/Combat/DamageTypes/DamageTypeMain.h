@@ -15,10 +15,17 @@ class HACK_N_SLASH_API UDamageTypeMain : public UDamageType
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	TEnumAsByte<EDamageType> damageType {EDamageType::DefaultDMGType};
+	FVector buffer {0.0f, 0.0f, 0.0f};
 
-	UFUNCTION(BlueprintCallable)
-	EDamageType GetDamageType() {return damageType;}
+public:
+	UFUNCTION(BlueprintPure)
+	FVector GetBuffer() const {return buffer;}
+
+	UFUNCTION(BlueprintPure)
+	EDamageType GetDamageType() const {return damageType;}
+
+	void SetBuffer(FVector bufferN) {buffer = bufferN;}
 	
 };

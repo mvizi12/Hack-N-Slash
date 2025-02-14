@@ -27,6 +27,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Notify")
 	float damage;
+
+	UPROPERTY(EditAnywhere, Category = "Notify")
+	FVector buffer;
 	
 	virtual void Notify(USkeletalMeshComponent*, UAnimSequenceBase*, const FAnimNotifyEventReference&) override;
 };

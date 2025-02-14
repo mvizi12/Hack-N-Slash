@@ -7,7 +7,8 @@
 void UWeaponTraceNotify::Notify(USkeletalMeshComponent *MeshComp, UAnimSequenceBase *Animation, const FAnimNotifyEventReference &EventReference)
 {
     UTraceComponent* traceComp {MeshComp->GetOwner()->FindComponentByClass<UTraceComponent>()};
-	if (!IsValid(traceComp)) { return; }
+	if (!IsValid(traceComp)) {return;}
 
+    damageType.GetDefaultObject()->SetBuffer(buffer);
     traceComp->WeaponTrace(damageType, traceDistance, traceRadius, damage);
 }

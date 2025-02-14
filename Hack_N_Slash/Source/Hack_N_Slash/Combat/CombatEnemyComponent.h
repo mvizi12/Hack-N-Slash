@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "CombatEnemyComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchEnemySignature, UCombatEnemyComponent, OnLaunchEnemyDelegate, FVector, distance);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatEnemyComponent : public UActorComponent
@@ -17,6 +19,8 @@ private:
 	class UCharacterMovementComponent* movementComp;
 	class IFighter* iFighterRef;
 
+	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
+
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode;
@@ -26,11 +30,20 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void LaunchEnemy(FVector distance, float lerpSpeed);
+
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnLaunchEnemySignature OnLaunchEnemyDelegate;
+
 	UCombatEnemyComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable) //Public so animations can call it
 	void HandleResetAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void TryResetAttack();
 		
 };

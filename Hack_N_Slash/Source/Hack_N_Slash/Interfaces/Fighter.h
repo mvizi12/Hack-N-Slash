@@ -27,7 +27,10 @@ public:
 	virtual float GetStrength() const {return 0.0f;}
 	virtual void HandleDeath() {}
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const {return false;}
+	virtual bool IsGrounded() const {return true;}
 	virtual bool IsInvincible() const {return false;}
+	virtual void LaunchFighter(FVector) {}
+	virtual void ResumeKnockedDBMontage() {}
 	virtual void SetState(EState) {}
-	virtual void SetInvincibility(bool, bool, float) {};
+	virtual void SetInvincibility(bool, bool, float) {}
 };

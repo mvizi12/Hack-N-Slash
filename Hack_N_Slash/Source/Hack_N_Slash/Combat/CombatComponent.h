@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\EState.h"
 #include "CombatComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetDodgeBufferSignature, UCombatComponent, OnResetDodgeBufferDelegate);
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchCharSignature, UCombatComponent, OnLaunchCharDelegate, FVector, distance);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchPlayerSignature, UCombatComponent, OnLaunchPlayerDelegate, FVector, distance);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnSmashAttackPerformedSignature, UCombatComponent, OnSmashAttackPerformedDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
@@ -24,24 +26,36 @@ private:
 	bool bSavedLightAttack {false};
 	bool bSavedHeavyAttack {false};
 
-	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
+	bool bCanAerialAttack {true}; //Flag to let the system know if aerial attacks are allowed
+	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
+	bool bCanSmashAttack {true}; //Flag to let the system know a smahs attack can be performed
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
+	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
 
 	float yDir {0.0f}; //Vertical direction the player is holding on the left stick
 
 	bool CanAttack();
+	bool CanAerialAttack();
+	bool CanSmashAttack();
 
 	//UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1) should stop these 2 functions from returning nullptr
 	UAnimMontage* GetComboExtenderAnimMontage();
 	UAnimMontage* GetComboStarterAnimMontage();
-	void PerformAttack(bool); //Performs light or heavy attack
+	void PerformAttack(int); //Performs light or heavy attack
 	void PerformComboExtender();
 	void PerformComboStarter();
 	void PerformLaunchAttack();
+	void PerformSmashAttack();
 
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<EState> attackCancelableStates {EState::Attack};
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<EState> invalidAttackStates {EState::Attack, EState::Death, EState::Dodge, EState::HitStun};
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> lightMeleeMontages;
@@ -56,7 +70,13 @@ protected:
 	TArray<UAnimMontage*> comboExtenderMontages;
 
 	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> aerialMeleeMontages;
+
+	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* launchMeleeMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* smashMeleeMontage;
 
 	UPROPERTY(VisibleAnywhere)
 	int comboCounter {0};
@@ -73,10 +93,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float launchMeleeStaminaCost {5.0f};
 
+	UPROPERTY(EditDefaultsOnly)
+	float smashMeleeStaminaCost {10.0f};
+
+	UPROPERTY(EditDefaultsOnly)
+	float aerialMeleeStaminaCost {5.0f};
+
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintPure)
+	FVector GetSmashAttackDistance() const;
+
 	UFUNCTION(BlueprintCallable)
-	void LaunchChar(FVector distance, float interpSpeed);
+	void LaunchPlayer(FVector distance, float lerpSpeed);
 
 	UFUNCTION(BlueprintCallable)
 	void LightAttack(float y);
@@ -95,7 +124,10 @@ public:
 	FOnResetDodgeBufferSignature OnResetDodgeBufferDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnLaunchCharSignature OnLaunchCharDelegate;
+	FOnLaunchPlayerSignature OnLaunchPlayerDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSmashAttackPerformedSignature OnSmashAttackPerformedDelegate;
 
 	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -109,4 +141,7 @@ public:
 	void SaveLightAttack(); //Public so animations can call it
 
 	void SaveHeavyAttack(); //Public so animations can call it
+
+	UFUNCTION(BlueprintCallable)
+	void TryResetAttack();
 };

@@ -15,7 +15,8 @@ class HACK_N_SLASH_API AMainPlayer : public ACharacter, public IMainPlayerI, pub
 	GENERATED_BODY()
 
 private:
-	ACharacter* characterRef;
+	class UCharacterMovementComponent* movementComp;
+	class UCombatComponent* combatComp;
 	class ULockOnOffComponent* lockOnOffComp;
 	class UStatsComponent* statsComp;
 
@@ -48,7 +49,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void HandleDeath() override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
+	virtual bool IsGrounded() const override;
 	virtual bool IsInvincible() const override;
+	virtual void LaunchFighter(FVector) override;
+	//Continues after the looped section of the knocked down or back animation montage
+	virtual void ResumeKnockedDBMontage() override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
 

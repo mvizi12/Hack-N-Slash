@@ -61,7 +61,7 @@ void ULockOnOffComponent::FindClosestEnemy(FVector startLocation)
 			continue;
 		}
 
-		//distanceToTarget = a value between 0 and 1
+		//angleToTarget = a value between 0 and 1
 		//0 = not close | 1 = close
 		double angleToTarget = GetAngleToTarget(startLocation, endLocation);
 		UE_LOG(LogTemp, Warning, TEXT("Angle to target: %f"), angleToTarget);
@@ -100,8 +100,6 @@ void ULockOnOffComponent::FindClosestLeftEnemy(FVector startLocation)
 		//If enemy isn't on the left side of the player or is the same as current target, skip it
 		if (angle <= 0 || temp == enemy) {continue;}
 
-		//distanceToTarget = a value between 0 and 1
-		//0 = not close | 1 = close
 		double angleToTarget = GetAngleToTarget(startLocation, endLocation);
 		UE_LOG(LogTemp, Warning, TEXT("Angle to target: %f | %s"), angleToTarget, *outHit.GetActor()->GetName());
 		if (angleToTarget > dotProduct) //If this enemy is closer than the previous one
@@ -140,8 +138,6 @@ void ULockOnOffComponent::FindClosestRightEnemy(FVector startLocation)
 		//If enemy isn't on the right side of the player or is the same as current target, skip it
 		if (angle >= 0 || temp == enemy) {continue;}
 
-		//distanceToTarget = a value between 0 and 1
-		//0 = not close | 1 = close
 		double angleToTarget = GetAngleToTarget(startLocation, endLocation);
 		UE_LOG(LogTemp, Warning, TEXT("Angle to target: %f | %s"), angleToTarget, *outHit.GetActor()->GetName());
 		if (angleToTarget > dotProduct) //If this enemy is closer than the previous one

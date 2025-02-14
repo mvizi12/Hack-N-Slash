@@ -4,6 +4,7 @@
 #include "PlayerActionsComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/Character.h"
+//#include "GameFramework/Controller.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/Engine.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
@@ -38,7 +39,7 @@ void UPlayerActionsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 /************************************Private Functions************************************/
 bool UPlayerActionsComponent::CanDodge()
 {
-    TArray<EState> invalidDodgeStates = {EState::Attack, EState::Death, EState::Dodge}; //States the player isn't allowed to dodge in
+    TArray<EState> invalidDodgeStates = {EState::Attack, EState::Death, EState::Dodge, EState::HitStun}; //States the player isn't allowed to dodge in
 	return !iFighterRef->IsCurrentStateEqualToAny(invalidDodgeStates) && !movementComp->IsFalling();
 }
 
@@ -116,10 +117,21 @@ void UPlayerActionsComponent::Look(float yaw, float pitch)
 	}
 }
 
-void UPlayerActionsComponent::ResetDodgeBuffer()
+void UPlayerActionsComponent::Move(float yaw, float pitch)
 {
-	bSavedDodge = false;
+	if (movementComp->IsFlying()) {return;}
+
+	FRotator controlRotA {characterRef->GetControlRotation()};
+	controlRotA.Pitch = 0.0;
+	characterRef->AddMovementInput(UKismetMathLibrary::GetRightVector(controlRotA), yaw);
+
+	FRotator controlRotB {characterRef->GetControlRotation()};
+	controlRotB.Roll = 0.0f;
+	controlRotB.Pitch = 0.0f;
+	characterRef->AddMovementInput(UKismetMathLibrary::GetForwardVector(controlRotB), pitch);
 }
+
+void UPlayerActionsComponent::ResetDodgeBuffer() {bSavedDodge = false;}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/

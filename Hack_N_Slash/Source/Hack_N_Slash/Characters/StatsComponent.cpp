@@ -3,6 +3,7 @@
 
 #include "StatsComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
@@ -19,6 +20,8 @@ void UStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	characterRef = GetOwner<ACharacter>();
+	iFighterRef = Cast<IFighter>(characterRef);
+	movementComp = characterRef->GetCharacterMovement();
 }
 
 void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -28,7 +31,7 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 }
 
 /************************************Private Functions************************************/
-UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) const
+UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType)
 {
     switch (damageType)
 	{
@@ -36,22 +39,25 @@ UAnimMontage *UStatsComponent::GetHitReactionMontage(EDamageType damageType) con
 		UE_LOG(LogTemp, Warning, TEXT("Default"));
 		return nullptr;
 	case EDamageType::KnockBack:
-		UE_LOG(LogTemp, Warning, TEXT("Knockback"));
+		knockedBack = true;
+		if (movementComp->IsFlying()) {movementComp->SetMovementMode(MOVE_Falling);}
 		return kbHitMontage;
 	case EDamageType::KnockDown:
-		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
+		knockedDown = true;
+		if (movementComp->IsFlying()) {movementComp->SetMovementMode(MOVE_Falling);}
 		return kdHitMontage;
 	case EDamageType::Launch:
-		UE_LOG(LogTemp, Warning, TEXT("Knockdown"));
+		if (iFighterRef == nullptr) {return nullptr;}
+		movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Character won't fall
 		return launchMontage;
 	case EDamageType::Left:
-		UE_LOG(LogTemp, Warning, TEXT("Left"));
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return leftHitMontage;
 	case EDamageType::Middle:
-		UE_LOG(LogTemp, Warning, TEXT("Middle"));
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return middleHitMontage;
 	case EDamageType::Right:
-		UE_LOG(LogTemp, Warning, TEXT("Right"));
+		if (movementComp->IsFlying() || movementComp->IsFalling()) {movementComp->SetMovementMode(MOVE_Flying);}
 		return rightHitMontage;
 	default:
 		return nullptr;
@@ -67,9 +73,8 @@ float UStatsComponent::GetStatPercentage(EStat current, EStat max) const
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
-void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType damageType)
+void UStatsComponent::ReduceHealth(float damage, FVector buffer, AActor *opponent, EDamageType damageType)
 {
-	IFighter* iFighterRef {GetOwner<IFighter>()};
 	if (iFighterRef == nullptr) {return;}
 
 	if (iFighterRef->IsInvincible()) {return;} //If fighter is invincible, return
@@ -83,15 +88,17 @@ void UStatsComponent::ReduceHealth(float damage, AActor *opponent, EDamageType d
 	{
 		OnZeroHealthUpdateDelegate.Broadcast();
 		/*iFighterRef->SetState(EState::Death);
+		if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
+		characterRef->SetActorEnableCollision(false);
 		if (characterRef == nullptr) {return;}
-		characterRef->PlayAnimMontage(deathMontage);
-		characterRef->SetActorEnableCollision(false);*/
+		characterRef->PlayAnimMontage(deathMontage);*/
 	}
 	else //Play hurt montage
 	{
 		UAnimMontage* hurtMontage = GetHitReactionMontage(damageType);
 		iFighterRef->SetState(EState::HitStun);
 		if (characterRef == nullptr || hurtMontage == nullptr) {return;}
+		iFighterRef->LaunchFighter(buffer); //Launch the character in the specified direction
 		characterRef->PlayAnimMontage(hurtMontage);
 	}
 }
@@ -119,5 +126,22 @@ void UStatsComponent::RegenStamina()
 	stats[EStat::MaxStamina], GetWorld()->DeltaTimeSeconds, staminaRegenRate);
 
 	OnStaminaPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
+}
+
+void UStatsComponent::ResumeLoopedMontage()
+{
+	if (knockedDown)
+	{
+		movementComp->SetMovementMode(MOVE_Walking);
+		characterRef->PlayAnimMontage(kdHitMontage, kdHitMontage->RateScale, TEXT("HitGround"));
+		knockedDown = false;
+	}
+	/*else if (knockedBack)
+	{
+		movementComp->SetMovementMode(MOVE_Walking);
+		characterRef->PlayAnimMontage(kbHitMontage, kbHitMontage->RateScale, TEXT("HitGround"));
+		knockedBack = false;
+	}*/
+
 }
 /************************************Public Functions************************************/

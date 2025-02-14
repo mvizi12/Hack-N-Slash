@@ -19,7 +19,6 @@ private:
 	AActor* ownerRef; //Reference to the owner of this component
 	TArray<AActor*> actorsToIgnore;
 
-	void GetReferences();
 	void HandleDamage(TSubclassOf<UDamageTypeMain>, TArray<FHitResult>&, float);
 
 protected:
