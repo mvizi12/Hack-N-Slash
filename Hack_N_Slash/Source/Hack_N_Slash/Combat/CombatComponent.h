@@ -10,7 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetDodgeBufferSignature, UCombatComponent, OnResetDodgeBufferDelegate);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchPlayerSignature, UCombatComponent, OnLaunchPlayerDelegate, FVector, distance);
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnStopPlayerTimelinesSignature, UCombatComponent, OnStopPlayerTimelinesDelegate);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnSmashAttackPerformedSignature, UCombatComponent, OnSmashAttackPerformedDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
@@ -26,15 +26,17 @@ private:
 	bool bSavedLightAttack {false};
 	bool bSavedHeavyAttack {false};
 
-	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
 	bool bCanAerialAttack {true}; //Flag to let the system know if aerial attacks are allowed
 	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
+	bool bCanSmashAttack {true}; //Flag to let the system know a smahs attack can be performed
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
+	bool bHeavyAttack {false}; //Flag to let the system know a heavy attack was performed
 
 	float yDir {0.0f}; //Vertical direction the player is holding on the left stick
 
 	bool CanAttack();
 	bool CanAerialAttack();
+	bool CanSmashAttack();
 
 	//UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1) should stop these 2 functions from returning nullptr
 	UAnimMontage* GetComboExtenderAnimMontage();
@@ -99,6 +101,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintPure)
+	FVector GetSmashAttackDistance() const;
+
 	UFUNCTION(BlueprintCallable)
 	void LaunchPlayer(FVector distance, float lerpSpeed);
 
@@ -122,7 +127,7 @@ public:
 	FOnLaunchPlayerSignature OnLaunchPlayerDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnStopPlayerTimelinesSignature OnStopPlayerTimelinesDelegate;
+	FOnSmashAttackPerformedSignature OnSmashAttackPerformedDelegate;
 
 	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

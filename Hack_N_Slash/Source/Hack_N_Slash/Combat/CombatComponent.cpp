@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+//#include "Kismet/KismetSystemLibrary.h"
 #include "Engine/Engine.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
@@ -35,6 +36,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 bool UCombatComponent::CanAttack() {return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();}
 
 bool UCombatComponent::CanAerialAttack() {return bCanAerialAttack && movementComp->MovementMode == MOVE_Flying;}
+
+bool UCombatComponent::CanSmashAttack() {return bCanSmashAttack && movementComp->MovementMode == MOVE_Flying;}
 
 UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
 {
@@ -82,7 +85,7 @@ void UCombatComponent::PerformAttack(int flag)
 		++comboCounter;
 		int maxCombo {aerialMeleeMontages.Num()};
 		comboCounter = UKismetMathLibrary::Wrap(comboCounter, -1, maxCombo - 1);
-		if (comboCounter == 0) {bCanAerialAttack = false;} //Restricts aerial combat to 1 full combo
+		if (comboCounter == 0) {bCanAerialAttack = false;} //Restricts aerial combat to at most, 1 full combo
 		OnAttackPerformedDelegate.Broadcast(aerialMeleeStaminaCost);
 		break;
 	}
@@ -138,14 +141,39 @@ void UCombatComponent::PerformSmashAttack()
 	if (smashMeleeMontage == nullptr) {return;}
 	iFighterRef->SetState(EState::Attack);
 	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Smash Attack"));}
-	movementComp->SetMovementMode(MOVE_Falling);
+	bCanAerialAttack = false;
+	bCanSmashAttack = false;
 	characterRef->PlayAnimMontage(smashMeleeMontage);
+	movementComp->SetMovementMode(MOVE_Falling);
 	OnAttackPerformedDelegate.Broadcast(smashMeleeStaminaCost);
 }
 
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+FVector UCombatComponent::GetSmashAttackDistance() const
+{
+	FHitResult outHit;
+	FVector startLoc {characterRef->GetActorLocation()};
+	FVector endLoc {0.0f, 0.0f, -1000000.0f};
+	FCollisionObjectQueryParams objectParams;
+	objectParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	objectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	FCollisionQueryParams ignoreParams {FName {TEXT("Ignore Collision Parameters")}, false, characterRef};
+
+	bool bHit = GetWorld()->LineTraceSingleByObjectType(outHit, startLoc, endLoc, objectParams, ignoreParams);
+	if (bDebugMode) {DrawDebugLine(GetWorld(), startLoc, outHit.Location, bHit ? FColor::Green : FColor::Red, false, 1.0f, 0, 1.0f);}
+	if (bHit) {UE_LOG(LogTemp, Warning, TEXT("Object blocking sight: %s"), *outHit.GetActor()->GetName());}
+
+	if (bHit)
+	{
+		double zDistance {startLoc.Z - outHit.Location.Z};
+		zDistance *= -1.0f;
+		return {0.0f, 0.0f, zDistance};
+	}
+	else {return {0.0f, 0.0f, -100.0f};}
+}
+
 void UCombatComponent::LaunchPlayer(FVector distance, float lerpSpeed)
 {
 	FVector startLoc {characterRef->GetActorLocation()};
@@ -197,7 +225,7 @@ void UCombatComponent::HeavyAttack()
 	}
 	if (CanAttack())
 	{
-		if (CanAerialAttack()) {PerformSmashAttack();}
+		if (CanSmashAttack()) {PerformSmashAttack();}
 		else if (!bComboStarter) {PerformAttack(2);}
 		else {PerformComboExtender();}
 	}
@@ -222,12 +250,12 @@ void UCombatComponent::HandleResetAttack()
 	else if (movementComp->MovementMode != MOVE_Falling)
 	{
 		iFighterRef->SetState(EState::NoneState);
+		bHeavyAttack = false;
 		bSavedLightAttack = false;
 		bSavedHeavyAttack = false;
 		bCanAerialAttack = true;
-		bHeavyAttack = false;
+		bCanSmashAttack = true;
 		yDir = 0;
-		OnStopPlayerTimelinesDelegate.Broadcast();
 	}
 }
 

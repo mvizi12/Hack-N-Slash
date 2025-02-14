@@ -63,7 +63,8 @@ void AMainPlayer::HandleDeath()
 	SetState(EState::Death);
 	DisableInput(GetController<APlayerController>());
 	if (deathMontage != nullptr) {PlayAnimMontage(deathMontage);}
-	SetActorEnableCollision(false);
+	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
+	if ((movementComp->MovementMode != MOVE_Flying && movementComp->MovementMode != MOVE_Falling)) {SetActorEnableCollision(false);}
 }
 
 bool AMainPlayer::HasEnoughStamina(float staminaCost)

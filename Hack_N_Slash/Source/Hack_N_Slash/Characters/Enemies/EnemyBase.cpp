@@ -64,7 +64,9 @@ void AEnemyBase::HandleDeath()
 	float duration {0.0f};
 	if (deathMontage != nullptr) {duration = PlayAnimMontage(deathMontage);}
 	//controllerRef->GetBrainComponent()->StopLogic("Defeated");
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
+	if ((movementComp->MovementMode != MOVE_Flying && movementComp->MovementMode != MOVE_Falling)) {GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);}
+
 	/*******************Play death animation and stop the AI's brain************************/
 
 	//FTimerHandle destroyTimerHandle;
