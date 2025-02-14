@@ -129,8 +129,18 @@ void UCombatComponent::PerformLaunchAttack()
 	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Launch Attack"));}
 	ResetCombo();
 	characterRef->PlayAnimMontage(launchMeleeMontage);
-	movementComp->SetMovementMode(EMovementMode::MOVE_Flying); //Player won't fall
+	movementComp->SetMovementMode(MOVE_Flying); //Player won't fall
 	OnAttackPerformedDelegate.Broadcast(launchMeleeStaminaCost);
+}
+
+void UCombatComponent::PerformSmashAttack()
+{
+	if (smashMeleeMontage == nullptr) {return;}
+	iFighterRef->SetState(EState::Attack);
+	if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Performing Smash Attack"));}
+	movementComp->SetMovementMode(MOVE_Falling);
+	characterRef->PlayAnimMontage(smashMeleeMontage);
+	OnAttackPerformedDelegate.Broadcast(smashMeleeStaminaCost);
 }
 
 /************************************Private Functions************************************/
@@ -187,7 +197,8 @@ void UCombatComponent::HeavyAttack()
 	}
 	if (CanAttack())
 	{
-		if (!bComboStarter) {PerformAttack(2);}
+		if (CanAerialAttack()) {PerformSmashAttack();}
+		else if (!bComboStarter) {PerformAttack(2);}
 		else {PerformComboExtender();}
 	}
 }
@@ -216,6 +227,7 @@ void UCombatComponent::HandleResetAttack()
 		bCanAerialAttack = true;
 		bHeavyAttack = false;
 		yDir = 0;
+		OnStopPlayerTimelinesDelegate.Broadcast();
 	}
 }
 

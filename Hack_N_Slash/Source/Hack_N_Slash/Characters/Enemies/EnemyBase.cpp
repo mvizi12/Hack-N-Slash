@@ -89,7 +89,11 @@ void AEnemyBase::ResumeKnockedDBMontage()
 	statsComp->ResumeLoopedMontage();
 }
 
-void AEnemyBase::SetState(EState state) { currentState = state; }
+void AEnemyBase::SetState(EState state)
+{
+	if (currentState == EState::Death || currentState == state) {return;}
+	currentState = state;
+}
 
 void AEnemyBase::SetInvincibility(bool invincible, bool indefinite, float duration = 0.0f)
 {

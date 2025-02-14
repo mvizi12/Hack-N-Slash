@@ -7,6 +7,7 @@
 #include "CombatEnemyComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchEnemySignature, UCombatEnemyComponent, OnLaunchEnemyDelegate, FVector, distance);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnStopEnemyTimelinesSignature, UCombatEnemyComponent, OnStopEnemyTimelinesDelegate);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -36,6 +37,9 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnLaunchEnemySignature OnLaunchEnemyDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStopEnemyTimelinesSignature OnStopEnemyTimelinesDelegate;
 
 	UCombatEnemyComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

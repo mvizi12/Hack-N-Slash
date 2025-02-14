@@ -10,6 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, UCombatComponent, OnAttackPerformedDelegate, float, amount);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetDodgeBufferSignature, UCombatComponent, OnResetDodgeBufferDelegate);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchPlayerSignature, UCombatComponent, OnLaunchPlayerDelegate, FVector, distance);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnStopPlayerTimelinesSignature, UCombatComponent, OnStopPlayerTimelinesDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
@@ -42,6 +43,7 @@ private:
 	void PerformComboExtender();
 	void PerformComboStarter();
 	void PerformLaunchAttack();
+	void PerformSmashAttack();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -71,6 +73,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* launchMeleeMontage;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* smashMeleeMontage;
+
 	UPROPERTY(VisibleAnywhere)
 	int comboCounter {0};
 
@@ -85,6 +90,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float launchMeleeStaminaCost {5.0f};
+
+	UPROPERTY(EditDefaultsOnly)
+	float smashMeleeStaminaCost {10.0f};
 
 	UPROPERTY(EditDefaultsOnly)
 	float aerialMeleeStaminaCost {5.0f};
@@ -112,6 +120,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLaunchPlayerSignature OnLaunchPlayerDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStopPlayerTimelinesSignature OnStopPlayerTimelinesDelegate;
 
 	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

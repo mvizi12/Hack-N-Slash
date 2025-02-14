@@ -90,7 +90,11 @@ void AMainPlayer::ResumeKnockedDBMontage()
 	statsComp->ResumeLoopedMontage();
 }
 
-void AMainPlayer::SetState(EState state) { currentState = state; }
+void AMainPlayer::SetState(EState state)
+{
+	if (currentState == EState::Death || currentState == state) {return;}
+	currentState = state;
+}
 
 void AMainPlayer::SetInvincibility(bool invincible, bool indefinite, float duration = 0.0f)
 {

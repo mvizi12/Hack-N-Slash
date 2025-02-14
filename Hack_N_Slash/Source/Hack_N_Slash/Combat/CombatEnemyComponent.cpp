@@ -49,7 +49,11 @@ void UCombatEnemyComponent::HandleResetAttack()
 		movementComp->SetMovementMode(MOVE_Falling);
 		bCanResetAttack = true;
 	}
-	else if (movementComp->MovementMode != MOVE_Falling) {iFighterRef->SetState(EState::NoneState);}
+	else if (movementComp->MovementMode != MOVE_Falling)
+	{
+		iFighterRef->SetState(EState::NoneState);
+		OnStopEnemyTimelinesDelegate.Broadcast();
+	}
 }
 
 void UCombatEnemyComponent::TryResetAttack()
