@@ -24,6 +24,8 @@ void AEnemyBase::BeginPlay()
 	statsComp = FindComponentByClass<UStatsComponent>();
 }
 
+void AEnemyBase::DisableCollision() {if (currentState == EState::Death) {SetActorEnableCollision(false);}}
+
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -50,12 +52,6 @@ float AEnemyBase::GetStrength() const
 	return statsComp->stats[EStat::Strength];
 }
 
-bool AEnemyBase::IsCurrentStateEqualToAny(TArray<EState> states) const {return states.Contains(currentState);}
-
-bool AEnemyBase::IsGrounded() const {return movementComp->IsMovingOnGround();}
-
-bool AEnemyBase::IsInvincible() const {return bIsInvincible;}
-
 void AEnemyBase::HandleDeath()
 {
 	/*******************Play death animation, stop the AI's brain, and disable collision************************/
@@ -65,7 +61,7 @@ void AEnemyBase::HandleDeath()
 	if (deathMontage != nullptr) {duration = PlayAnimMontage(deathMontage);}
 	//controllerRef->GetBrainComponent()->StopLogic("Defeated");
 	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
-	if ((movementComp->MovementMode != MOVE_Flying && movementComp->MovementMode != MOVE_Falling)) {GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);}
+	if ((movementComp->MovementMode != MOVE_Flying && movementComp->MovementMode != MOVE_Falling)) {SetActorEnableCollision(false);}
 
 	/*******************Play death animation and stop the AI's brain************************/
 
@@ -78,6 +74,13 @@ void AEnemyBase::HandleDeath()
 	iPlayerRef->EndLockOnWithActor(this);
 	/***************End the player's lock on to this enemy if they're locked on to them*******************/
 }
+
+
+bool AEnemyBase::IsCurrentStateEqualToAny(TArray<EState> states) const {return states.Contains(currentState);}
+
+bool AEnemyBase::IsGrounded() const {return movementComp->IsMovingOnGround();}
+
+bool AEnemyBase::IsInvincible() const {return bIsInvincible;}
 
 void AEnemyBase::LaunchFighter(FVector distance)
 {

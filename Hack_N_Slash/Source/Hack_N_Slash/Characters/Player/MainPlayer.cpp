@@ -40,6 +40,7 @@ void AMainPlayer::NegateInvincibility() {bIsInvincible = !bIsInvincible;}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void AMainPlayer::DisableCollision() {if (currentState == EState::Death) {SetActorEnableCollision(false);}}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/

@@ -84,15 +84,7 @@ void UStatsComponent::ReduceHealth(float damage, FVector buffer, AActor *opponen
 
 	OnHealthPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::MaxHealth));
 
-	if (stats[EStat::Health] <= 0) //Play death montage
-	{
-		OnZeroHealthUpdateDelegate.Broadcast();
-		/*iFighterRef->SetState(EState::Death);
-		if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
-		characterRef->SetActorEnableCollision(false);
-		if (characterRef == nullptr) {return;}
-		characterRef->PlayAnimMontage(deathMontage);*/
-	}
+	if (stats[EStat::Health] <= 0) {OnZeroHealthUpdateDelegate.Broadcast();}
 	else //Play hurt montage
 	{
 		UAnimMontage* hurtMontage = GetHitReactionMontage(damageType);
