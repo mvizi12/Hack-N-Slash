@@ -33,6 +33,9 @@ protected:
 	UAnimMontage* deathMontage;
 	
 	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintCallable)
+	void DisableCollision();
 
 public:
 	AMainPlayer();

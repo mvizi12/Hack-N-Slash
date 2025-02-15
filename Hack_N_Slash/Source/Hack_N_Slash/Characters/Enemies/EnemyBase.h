@@ -32,6 +32,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void DisableCollision();
+
 public:
 	AEnemyBase();
 
@@ -41,11 +44,11 @@ public:
 	/***************Interface Functions - Fighter***************/
 	virtual EState GetState() const override;
 	virtual float GetStrength() const override;
+	UFUNCTION(BlueprintCallable)
+	virtual void HandleDeath() override;
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const override;
 	virtual bool IsGrounded() const override;
 	virtual bool IsInvincible() const override;
-	UFUNCTION(BlueprintCallable)
-	virtual void HandleDeath() override;
 	virtual void LaunchFighter(FVector) override;
 	//Continues after the looped section of the knocked down or back animation montage
 	virtual void ResumeKnockedDBMontage() override;
