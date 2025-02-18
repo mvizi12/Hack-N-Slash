@@ -14,5 +14,5 @@ UENUM(BlueprintType)
 	Launch UMETA(DisplayName = "Launch"),
 	Left UMETA(DisplayName = "Left"),
 	Middle UMETA(DisplayName = "Middle"),
-	Right UMETA(DisplayName = Right)
+	Right UMETA(DisplayName = "Right")
  };
