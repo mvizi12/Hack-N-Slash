@@ -53,10 +53,11 @@ void UCombatComponent::DeprecateRage()
 	{
 		bRageMode = false;
 		bCanLoseRage = false;
+		iFighterRef->ToggleRageStats(false);
 		if (skeletalMeshComp) {skeletalMeshComp->SetOverlayMaterial(nullptr);}
 	}
 
-	//OnStaminaPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
+	OnRagePercentUpdateDelegate.Broadcast(currentRageVal / maxRageVal);
 }
 
 UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
@@ -179,6 +180,7 @@ void UCombatComponent::EnterRageMode()
 		if (skeletalMeshComp) {skeletalMeshComp->SetOverlayMaterial(rageModeOverlay);}
 		characterRef->PlayAnimMontage(rageModeMontage);
 		bRageMode = true;
+		iFighterRef->ToggleRageStats(true);
 	}
 	else if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {bSavedRageMode = true;}
 }
@@ -211,6 +213,7 @@ void UCombatComponent::IncreaseRageVal(double val)
 	if (bRageMode) {return;}
 	currentRageVal += val;
 	currentRageVal = UKismetMathLibrary::FClamp(currentRageVal, 0, maxRageVal);
+	OnRagePercentUpdateDelegate.Broadcast(currentRageVal / maxRageVal);
 }
 
 void UCombatComponent::LaunchPlayer(FVector distance, float lerpSpeed)
@@ -278,6 +281,7 @@ void UCombatComponent::HeavyAttack()
 
 void UCombatComponent::ResetAttackBuffers()
 {
+	bSavedAerialDashAttack = false;
 	bSavedLightAttack = false;
 	bSavedHeavyAttack = false;
 }
@@ -300,9 +304,38 @@ void UCombatComponent::HandleResetAttack()
 		bSavedHeavyAttack = false;
 		bSavedRageMode = false;
 		bCanAerialAttack = true;
+		bCanAerialDash = true;
 		bCanSmashAttack = true;
 		if (bRageMode) {bCanLoseRage = true;}
 		yDir = 0;
+	}
+}
+
+void UCombatComponent::AerialDashAttack()
+{
+	if (aerialDashMontage == nullptr) {return;}
+	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
+	if (!bRageMode) //If player isn't in rage mode, they need to have enough stamina
+	{
+		if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
+	}
+
+	ResetAttackBuffers();
+	OnResetDodgeBufferDelegate.Broadcast();
+
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates))
+	{
+		//Save the input to buffer the next attack
+		bSavedAerialDashAttack = true;
+		return;
+	}
+	if (CanAttack() && bCanAerialDash)
+	{
+		//Doesn't work right
+		/*iFighterRef->SetState(EState::Attack);
+		characterRef->PlayAnimMontage(aerialDashMontage);
+		OnAttackPerformedDelegate.Broadcast(lightMeleeStaminaCost);
+		bCanAerialDash = false;*/
 	}
 }
 
@@ -311,6 +344,15 @@ void UCombatComponent::ResetCombo()
 	bComboStarter = false;
 	comboStarterIndex = 0;
 	comboCounter = 0;
+}
+
+void UCombatComponent::SaveAerialDashAttack()
+{
+	if (!bSavedAerialDashAttack) {return;}
+	bSavedAerialDashAttack = false;
+
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
+	AerialDashAttack();
 }
 
 void UCombatComponent::SaveLightAttack()

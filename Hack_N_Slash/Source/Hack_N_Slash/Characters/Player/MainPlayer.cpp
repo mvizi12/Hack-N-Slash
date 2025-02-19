@@ -6,6 +6,7 @@
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\LockOnOffComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
+#include "PlayerActionsComponent.h"
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -22,6 +23,7 @@ void AMainPlayer::BeginPlay()
 	combatComp = FindComponentByClass<UCombatComponent>();
 	lockOnOffComp = FindComponentByClass<ULockOnOffComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
+	playerActionsComp = FindComponentByClass<UPlayerActionsComponent>();
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -40,6 +42,12 @@ void AMainPlayer::NegateInvincibility() {bIsInvincible = !bIsInvincible;}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void AMainPlayer::DashDodge()
+{
+	if (movementComp->MovementMode == MOVE_Flying) {combatComp->AerialDashAttack();}
+	else {playerActionsComp->Dodge();}
+}
+
 void AMainPlayer::DisableCollision() {if (currentState == EState::Death) {SetActorEnableCollision(false);}}
 /************************************Protected Functions************************************/
 
@@ -106,4 +114,6 @@ void AMainPlayer::SetInvincibility(bool invincible, bool indefinite, float durat
 	FTimerHandle InvincibleTimerHandle;
 	GetWorldTimerManager().SetTimer(InvincibleTimerHandle, this, &AMainPlayer::NegateInvincibility, duration, false);
 }
+
+void AMainPlayer::ToggleRageStats(bool bInRageMode) {statsComp->ToggleRageStats(bInRageMode);}
 /************************************Public Functions************************************/

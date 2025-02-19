@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnAttackPerformedSignature, 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnResetDodgeBufferSignature, UCombatComponent, OnResetDodgeBufferDelegate);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchPlayerSignature, UCombatComponent, OnLaunchPlayerDelegate, FVector, distance);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnSmashAttackPerformedSignature, UCombatComponent, OnSmashAttackPerformedDelegate);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnRagePercentUpdateSignature, UCombatComponent, OnRagePercentUpdateDelegate, float, percent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HACK_N_SLASH_API UCombatComponent : public UActorComponent
@@ -26,11 +27,13 @@ private:
 
 	UParticleSystemComponent* rageModePSComp; //Component for rage mode particle system
 
+	bool bSavedAerialDashAttack {false};
 	bool bSavedLightAttack {false};
 	bool bSavedHeavyAttack {false};
 	bool bSavedRageMode {false};
 
 	bool bCanAerialAttack {true}; //Flag to let the system know if aerial attacks are allowed
+	bool bCanAerialDash {true}; //Flag to let the system know an aerial dash can be performed
 	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
 	bool bCanSmashAttack {true}; //Flag to let the system know a smahs attack can be performed
 	bool bComboStarter {false}; //Flag to let the system know a combo was performed
@@ -63,7 +66,7 @@ protected:
 	bool bDebugMode;
 
 	UPROPERTY(VisibleAnywhere)
-	double currentRageVal {100.0f};
+	double currentRageVal {0.0f};
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<EState> attackCancelableStates {EState::Attack};
@@ -85,6 +88,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<UAnimMontage*> aerialMeleeMontages;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* aerialDashMontage;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* launchMeleeMontage;
@@ -158,13 +164,20 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnSmashAttackPerformedSignature OnSmashAttackPerformedDelegate;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnRagePercentUpdateSignature OnRagePercentUpdateDelegate;
+
 	UCombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable) //Public so animations can call it
 	void HandleResetAttack();
 
+	void AerialDashAttack();
+
 	void ResetCombo(); //Public so animations can call it
+
+	void SaveAerialDashAttack(); //Public so animations can call it
 	
 	void SaveLightAttack(); //Public so animations can call it
 

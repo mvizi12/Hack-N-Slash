@@ -35,4 +35,5 @@ public:
 	virtual void ResumeKnockedDBMontage() {}
 	virtual void SetState(EState) {}
 	virtual void SetInvincibility(bool, bool, float) {}
+	virtual void ToggleRageStats(bool) {}
 };

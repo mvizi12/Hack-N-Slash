@@ -82,7 +82,7 @@ void UStatsComponent::ReduceHealth(float damage, FVector buffer, AActor *opponen
 	stats[EStat::Health] -= damage;
 	stats[EStat::Health] = UKismetMathLibrary::FClamp(stats[EStat::Health], 0, stats[EStat::MaxHealth]);
 
-	IFighter::Execute_IncreaseRage(opponent, 5.0f);
+	IFighter::Execute_IncreaseRage(opponent, 5.0f); //Increase the rage value of the oppnent
 
 	OnHealthPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::MaxHealth));
 
@@ -137,5 +137,14 @@ void UStatsComponent::ResumeLoopedMontage()
 		knockedBack = false;
 	}*/
 
+}
+void UStatsComponent::ToggleRageStats(bool bInRageMode)
+{
+	for (auto& elem : stats)
+	{
+		if (elem.Key != EStat::Strength) {continue;}
+		if (bInRageMode) {elem.Value *= rageStatMultiplier;}
+		else {elem.Value /= rageStatMultiplier;}
+	}
 }
 /************************************Public Functions************************************/
