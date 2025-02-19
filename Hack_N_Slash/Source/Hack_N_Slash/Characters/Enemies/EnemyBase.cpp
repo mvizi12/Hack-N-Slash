@@ -4,9 +4,13 @@
 #include "EnemyBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Controllers\EnemyBaseController.h"
+//#include "BehaviorTree/BlackboardComponent.h"
+#include "BrainComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatEnemyComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
+#include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\Player\MainPlayer.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -18,10 +22,13 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	controllerRef = GetController<AEnemyBaseController>();
 	movementComp = GetCharacterMovement();
 	combatEnemyComp = FindComponentByClass<UCombatEnemyComponent>();
 	statsComp = FindComponentByClass<UStatsComponent>();
+
+	//GetWorld()->GetFirstPlayerController()->GetPawn<AMainPlayer>()->statsComp->OnZeroHealthUpdateDelegate.AddDynamic(this, &AEnemyBase::HandlePlayerDeath);
 }
 
 void AEnemyBase::DisableCollision() {if (currentState == EState::Death) {SetActorEnableCollision(false);}}
@@ -41,9 +48,12 @@ void AEnemyBase::NegateInvincibility() {bIsInvincible = !bIsInvincible;}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void AEnemyBase::HandlePlayerDeath() {SetState(EState::NoneState);}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
+UBehaviorTree *AEnemyBase::GetBehaviorTree() const {return behaviorTree;}
+
 EState AEnemyBase::GetState() const {return currentState;}
 
 float AEnemyBase::GetStrength() const
@@ -59,7 +69,7 @@ void AEnemyBase::HandleDeath()
 	SetState(EState::Death);
 	float duration {0.0f};
 	if (deathMontage != nullptr) {duration = PlayAnimMontage(deathMontage);}
-	//controllerRef->GetBrainComponent()->StopLogic("Defeated");
+	if (controllerRef) {controllerRef->GetBrainComponent()->StopLogic("Defeated");}
 	if (movementComp->MovementMode == MOVE_Flying) {movementComp->SetMovementMode(MOVE_Falling);}
 	if ((movementComp->MovementMode != MOVE_Flying && movementComp->MovementMode != MOVE_Falling)) {SetActorEnableCollision(false);}
 

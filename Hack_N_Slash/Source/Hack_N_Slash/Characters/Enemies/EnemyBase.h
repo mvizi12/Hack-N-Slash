@@ -15,12 +15,17 @@ class HACK_N_SLASH_API AEnemyBase : public ACharacter, public IFighter, public I
 	GENERATED_BODY()
 	
 private:
-	void NegateInvincibility();
+	class AEnemyBaseController* controllerRef;
 	class UCharacterMovementComponent* movementComp;
 	class UCombatEnemyComponent* combatEnemyComp;
 	class UStatsComponent* statsComp;
 
+	void NegateInvincibility();
+
 protected:
+	UPROPERTY(EditAnywhere)
+	class UBehaviorTree* behaviorTree;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsInvincible {false};
 
@@ -35,11 +40,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DisableCollision();
 
+	UFUNCTION()
+	void HandlePlayerDeath();
+
 public:
 	AEnemyBase();
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UBehaviorTree* GetBehaviorTree() const;
 
 	/***************Interface Functions - Fighter***************/
 	virtual EState GetState() const override;
