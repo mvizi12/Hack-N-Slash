@@ -85,8 +85,7 @@ void UPlayerActionsComponent::Dodge()
 	{
 		//Else Attempt dodge
 		if (GEngine && bDebugMode) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Attempting Light Attack"));}
-		if (CanDodge())
-		{PerformDodge();}
+		if (CanDodge()) {PerformDodge();}
 	}
 }
 

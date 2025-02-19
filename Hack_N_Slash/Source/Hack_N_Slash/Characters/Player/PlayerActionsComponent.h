@@ -47,9 +47,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void Dodge();
-
-	UFUNCTION(BlueprintCallable)
 	void Jump();
 
 	UFUNCTION(BlueprintCallable)
@@ -70,6 +67,8 @@ public:
 
 	UPlayerActionsComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void Dodge();
 
 	void SaveDodge(); //Public so animations can call it
 };

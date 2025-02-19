@@ -15,5 +15,5 @@ class HACK_N_SLASH_API USaveDodgeNS : public UAnimNotifyState
 	GENERATED_BODY()
 
 public:
-	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
+	virtual void NotifyTick(USkeletalMeshComponent*, UAnimSequenceBase*, float, const FAnimNotifyEventReference&) override;
 };

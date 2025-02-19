@@ -26,6 +26,8 @@ public:
 	virtual EState GetState() const {return EState::NoneState;}
 	virtual float GetStrength() const {return 0.0f;}
 	virtual void HandleDeath() {}
+	UFUNCTION(BlueprintImplementableEvent)
+	void IncreaseRage(float val);
 	virtual bool IsCurrentStateEqualToAny(TArray<EState>) const {return false;}
 	virtual bool IsGrounded() const {return true;}
 	virtual bool IsInvincible() const {return false;}
@@ -33,4 +35,5 @@ public:
 	virtual void ResumeKnockedDBMontage() {}
 	virtual void SetState(EState) {}
 	virtual void SetInvincibility(bool, bool, float) {}
+	virtual void ToggleRageStats(bool) {}
 };

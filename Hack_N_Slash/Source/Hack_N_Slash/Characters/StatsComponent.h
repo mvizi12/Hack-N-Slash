@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	double staminaRegenRate {10.0};
 
+	UPROPERTY(EditDefaultsOnly)
+	float rageStatMultiplier {1.5f};
+
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* deathMontage;
 
@@ -96,4 +99,6 @@ public:
 	void RegenStamina();
 
 	void ResumeLoopedMontage();
+
+	void ToggleRageStats(bool);
 };

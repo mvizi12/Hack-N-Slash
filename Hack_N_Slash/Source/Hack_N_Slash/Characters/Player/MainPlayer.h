@@ -19,6 +19,7 @@ private:
 	class UCombatComponent* combatComp;
 	class ULockOnOffComponent* lockOnOffComp;
 	class UStatsComponent* statsComp;
+	class UPlayerActionsComponent* playerActionsComp;
 
 	void NegateInvincibility();
 
@@ -33,6 +34,9 @@ protected:
 	UAnimMontage* deathMontage;
 	
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void DashDodge();
 	
 	UFUNCTION(BlueprintCallable)
 	void DisableCollision();
@@ -59,5 +63,6 @@ public:
 	virtual void ResumeKnockedDBMontage() override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
+	virtual void ToggleRageStats(bool) override;
 
 };
