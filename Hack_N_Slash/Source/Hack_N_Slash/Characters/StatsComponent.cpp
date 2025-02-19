@@ -82,6 +82,8 @@ void UStatsComponent::ReduceHealth(float damage, FVector buffer, AActor *opponen
 	stats[EStat::Health] -= damage;
 	stats[EStat::Health] = UKismetMathLibrary::FClamp(stats[EStat::Health], 0, stats[EStat::MaxHealth]);
 
+	IFighter::Execute_IncreaseRage(opponent, 5.0f);
+
 	OnHealthPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::MaxHealth));
 
 	if (stats[EStat::Health] <= 0) {OnZeroHealthUpdateDelegate.Broadcast();}

@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-//#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\Fighter.h"
@@ -23,6 +23,7 @@ void UCombatComponent::BeginPlay()
 
 	characterRef = GetOwner<ACharacter>();
 	movementComp = characterRef->GetCharacterMovement();
+	skeletalMeshComp = characterRef->GetComponentByClass<USkeletalMeshComponent>();
 	iPlayerRef = Cast<IMainPlayerI>(characterRef);
 	iFighterRef = Cast<IFighter>(characterRef);
 }
@@ -30,25 +31,44 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	DeprecateRage();
 }
 
 /************************************Private Functions************************************/
-bool UCombatComponent::CanAttack() {return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();}
+bool UCombatComponent::CanAttack() const {return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();}
 
-bool UCombatComponent::CanAerialAttack() {return bCanAerialAttack && movementComp->MovementMode == MOVE_Flying;}
+bool UCombatComponent::CanAerialAttack() const {return bCanAerialAttack && movementComp->MovementMode == MOVE_Flying;}
 
-bool UCombatComponent::CanSmashAttack() {return bCanSmashAttack && movementComp->MovementMode == MOVE_Flying;}
+bool UCombatComponent::CanEnterRageMode() const {return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !bRageMode && currentRageVal >= maxRageVal && movementComp->MovementMode != MOVE_Flying && !movementComp->IsFalling();}
+
+bool UCombatComponent::CanSmashAttack() const {return bCanSmashAttack && movementComp->MovementMode == MOVE_Flying;}
+
+void UCombatComponent::DeprecateRage()
+{
+	if (!bCanLoseRage) {return;}
+
+	currentRageVal = UKismetMathLibrary::FInterpTo_Constant(currentRageVal, 0.0f, GetWorld()->DeltaTimeSeconds, rageDeprRate);
+	if (currentRageVal <= 0.0f)
+	{
+		bRageMode = false;
+		bCanLoseRage = false;
+		if (skeletalMeshComp) {skeletalMeshComp->SetOverlayMaterial(nullptr);}
+	}
+
+	//OnStaminaPercentUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
+}
 
 UAnimMontage *UCombatComponent::GetComboExtenderAnimMontage()
 {
-	if (comboStarterIndex >= comboExtenderMontages.Num()) {return nullptr;}
+	if (comboStarterIndex >= comboExtenderMontages.Num() || comboStarterIndex < 0) {return nullptr;}
     return comboExtenderMontages[comboStarterIndex];
 }
 
 UAnimMontage* UCombatComponent::GetComboStarterAnimMontage()
 {
 	int temp = comboCounter - 1; //The 1st combo starter montage will correlate with the 1st heavy attack and so on
-	if (temp >= comboStarterMontages.Num()) {return nullptr;}
+	if (temp >= comboStarterMontages.Num() || temp < 0) {return nullptr;}
     return comboStarterMontages[temp];
 }
 
@@ -151,6 +171,18 @@ void UCombatComponent::PerformSmashAttack()
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
+void UCombatComponent::EnterRageMode()
+{
+	if (CanEnterRageMode())
+	{
+		iFighterRef->SetState(EState::Attack);
+		if (skeletalMeshComp) {skeletalMeshComp->SetOverlayMaterial(rageModeOverlay);}
+		characterRef->PlayAnimMontage(rageModeMontage);
+		bRageMode = true;
+	}
+	else if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {bSavedRageMode = true;}
+}
+
 FVector UCombatComponent::GetSmashAttackDistance() const
 {
 	FHitResult outHit;
@@ -174,6 +206,13 @@ FVector UCombatComponent::GetSmashAttackDistance() const
 	else {return {0.0f, 0.0f, -100.0f};}
 }
 
+void UCombatComponent::IncreaseRageVal(double val)
+{
+	if (bRageMode) {return;}
+	currentRageVal += val;
+	currentRageVal = UKismetMathLibrary::FClamp(currentRageVal, 0, maxRageVal);
+}
+
 void UCombatComponent::LaunchPlayer(FVector distance, float lerpSpeed)
 {
 	FVector startLoc {characterRef->GetActorLocation()};
@@ -186,7 +225,10 @@ void UCombatComponent::LightAttack(float y)
 {
 	if (lightMeleeMontages.IsEmpty()) {return;}
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
-	if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
+	if (!bRageMode) //If player isn't in rage mode, they need to have enough stamina
+	{
+		if (!iPlayerRef->HasEnoughStamina(lightMeleeStaminaCost)) {return;}
+	}
 
 	bSavedHeavyAttack = false; //Necessary for chaining heavy with light attacks
 	yDir = y;
@@ -211,7 +253,10 @@ void UCombatComponent::HeavyAttack()
 {
 	if (heavyMeleeMontages.IsEmpty()) {return;}
 	if (iFighterRef == nullptr || iPlayerRef == nullptr) {return;}
-	if (!iPlayerRef->HasEnoughStamina(heavyMeleeStaminaCost)) {return;}
+	if (!bRageMode) //If player isn't in rage mode, they need to have enough stamina
+	{
+		if (!iPlayerRef->HasEnoughStamina(heavyMeleeStaminaCost)) {return;}
+	}
 
 	bSavedLightAttack = false; //Bookeeping since we're performing a heavy attack; necessary for chaining light with heavy attacks
 	OnResetDodgeBufferDelegate.Broadcast();
@@ -253,8 +298,10 @@ void UCombatComponent::HandleResetAttack()
 		bHeavyAttack = false;
 		bSavedLightAttack = false;
 		bSavedHeavyAttack = false;
+		bSavedRageMode = false;
 		bCanAerialAttack = true;
 		bCanSmashAttack = true;
+		if (bRageMode) {bCanLoseRage = true;}
 		yDir = 0;
 	}
 }
@@ -270,10 +317,9 @@ void UCombatComponent::SaveLightAttack()
 {
 	if (!bSavedLightAttack) {return;}
 	bSavedLightAttack = false;
+	
+	if (bRageMode) {bCanLoseRage = true;}
 
-	//Decides wether or not the state should be reset
-	//In large combat systems there's gonna be times when a variable is set even though you don't want it
-	//So this serves as an extra layer of insurance
 	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
 	LightAttack(yDir);
 }
@@ -282,13 +328,20 @@ void UCombatComponent::SaveHeavyAttack()
 {
 	if (!bSavedHeavyAttack) {return;}
 	bSavedHeavyAttack = false;
+	
+	if (bRageMode) {bCanLoseRage = true;}
 
-	//Decides wether or not the state should be reset
-	//In large combat systems there's gonna be times when a variable is set even though you don't want it
-	//So this serves as an extra layer of insurance
-	TArray<EState> states = {EState::Attack};
 	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
 	HeavyAttack();
+}
+
+void UCombatComponent::SaveRageMode()
+{
+	if (!bSavedRageMode) {return;}
+	bSavedRageMode = false;
+
+	if (iFighterRef->IsCurrentStateEqualToAny(attackCancelableStates)) {iFighterRef->SetState(EState::NoneState);}
+	EnterRageMode();
 }
 
 void UCombatComponent::TryResetAttack()

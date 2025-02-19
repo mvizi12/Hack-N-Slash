@@ -392,6 +392,22 @@
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
 	},
 	{
+		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animations\\AnimNotifyStates\\SaveRageModeNS.cpp",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animations\\AnimNotifyStates\\SaveRageModeNS.h",
+		"arguments": [
+			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
+			"@C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\.vscode\\compileCommands_Hack_N_Slash\\Hack_N_Slash.1.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.5\\Engine\\Source"
+	},
+	{
 		"file": "C:\\Users\\mvizi\\Documents\\Unreal Projects\\Hack-N-Slash\\Hack_N_Slash\\Source\\Hack_N_Slash\\Animations\\Enemies\\EnemyBaseAnimInstance.cpp",
 		"arguments": [
 			"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe",
