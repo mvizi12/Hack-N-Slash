@@ -28,6 +28,7 @@ void UCombatEnemyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 }
 
 /************************************Private Functions************************************/
+bool UCombatEnemyComponent::CanAttack() const {return !iFighterRef->IsCurrentStateEqualToAny(invalidAttackStates) && !movementComp->IsFalling();}
 /************************************Private Functions************************************/
 
 /************************************Protected Functions************************************/
@@ -41,6 +42,24 @@ void UCombatEnemyComponent::LaunchEnemy(FVector distance, float lerpSpeed)
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
+float UCombatEnemyComponent::GetAnimationDuration() const {return animDur;}
+
+void UCombatEnemyComponent::PerformMeleeAttack()
+{
+	if (iFighterRef == nullptr || meleeMontages.IsEmpty() || !CanAttack()) {return;}
+	int index = FMath::RandRange(0, meleeMontages.Num() - 1);
+	iFighterRef->SetState(EState::Attack);
+	animDur = characterRef->PlayAnimMontage(meleeMontages[index]);
+}
+
+void UCombatEnemyComponent::PerformRangedAttack()
+{
+	if (iFighterRef == nullptr || rangedMontages.IsEmpty() || !CanAttack()) {return;}
+	int index = FMath::RandRange(0, rangedMontages.Num() - 1);
+	iFighterRef->SetState(EState::Attack);
+	animDur = characterRef->PlayAnimMontage(rangedMontages[index]);
+}
+
 void UCombatEnemyComponent::HandleResetAttack()
 {
 	//Ensures that if the player is in the air, we only reset their state when they hit the ground
@@ -49,7 +68,11 @@ void UCombatEnemyComponent::HandleResetAttack()
 		movementComp->SetMovementMode(MOVE_Falling);
 		bCanResetAttack = true;
 	}
-	else if (movementComp->MovementMode != MOVE_Falling) {iFighterRef->SetState(EState::NoneState);}
+	else if (movementComp->MovementMode != MOVE_Falling) 
+	{
+		iFighterRef->SetState(EState::NoneState);
+		animDur = 0.0f;
+	}
 }
 
 void UCombatEnemyComponent::TryResetAttack()

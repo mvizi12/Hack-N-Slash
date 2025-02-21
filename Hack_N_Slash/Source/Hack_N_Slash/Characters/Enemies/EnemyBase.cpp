@@ -52,9 +52,13 @@ void AEnemyBase::HandlePlayerDeath() {SetState(EState::NoneState);}
 /************************************Protected Functions************************************/
 
 /************************************Public Functions************************************/
+float AEnemyBase::GetAnimationDuration() const {return combatEnemyComp->GetAnimationDuration();}
+
 UBehaviorTree *AEnemyBase::GetBehaviorTree() const {return behaviorTree;}
 
-EState AEnemyBase::GetState() const {return currentState;}
+float AEnemyBase::GetStrafeDistance() const {return strafeDistance;}
+
+EState AEnemyBase::GetState() const { return currentState; }
 
 float AEnemyBase::GetStrength() const
 {
@@ -117,6 +121,11 @@ void AEnemyBase::SetInvincibility(bool invincible, bool indefinite, float durati
 
 	FTimerHandle InvincibleTimerHandle;
 	GetWorldTimerManager().SetTimer(InvincibleTimerHandle, this, &AEnemyBase::NegateInvincibility, duration, false);
+}
+
+void AEnemyBase::Attack(bool bRanged)
+{
+	bRanged ? combatEnemyComp->PerformRangedAttack() : combatEnemyComp->PerformMeleeAttack();
 }
 
 /************************************Public Functions************************************/

@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UBehaviorTree* behaviorTree;
 
+	UPROPERTY(EditAnywhere, meta = (Tooltip = "Make sure this is less than the enemy's sight radius"))
+	float strafeDistance {200.0f};
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsInvincible {false};
 
@@ -50,8 +53,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UBehaviorTree* GetBehaviorTree() const;
+	float GetStrafeDistance() const;
 
 	/***************Interface Functions - Fighter***************/
+	virtual float GetAnimationDuration() const;
 	virtual EState GetState() const override;
 	virtual float GetStrength() const override;
 	UFUNCTION(BlueprintCallable)
@@ -64,5 +69,8 @@ public:
 	virtual void ResumeKnockedDBMontage() override;
 	virtual void SetState(EState) override;
 	virtual void SetInvincibility(bool, bool, float) override;
+
+	/***************Interface Functions - Enemy***************/
+	virtual void Attack(bool) override;
 
 };
