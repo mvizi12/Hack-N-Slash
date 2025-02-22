@@ -7,6 +7,7 @@
 #include "Controllers\EnemyBaseController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BrainComponent.h"
+#include "EEnemyState.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatEnemyComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Interfaces\MainPlayerI.h"
@@ -71,7 +72,7 @@ float AEnemyBase::GetStrength() const
 void AEnemyBase::HandleDeath()
 {
 	/*******************Play death animation, stop the AI's brain, and disable collision************************/
-	//blackBoardComp->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::DeadE);
+	if (controllerRef) {controllerRef->GetBlackboardComponent()->SetValueAsEnum(TEXT("State"), EEnemyState::DeadE);}
 	SetState(EState::Death);
 	float duration {0.0f};
 	if (deathMontage != nullptr) {duration = PlayAnimMontage(deathMontage);}
@@ -113,7 +114,12 @@ void AEnemyBase::ResumeKnockedDBMontage()
 void AEnemyBase::SetState(EState state)
 {
 	if (currentState == EState::Death || currentState == state) {return;}
+	//If recovering from hit stun, make enemy chase their target
+	//Make sure to set the enemies target in their "AnyDamage" event or "ReportDamage" event or "TakeDamage" function
+	if (currentState == EState::HitStun && controllerRef) {controllerRef->GetBlackboardComponent()->SetValueAsEnum(TEXT("State"), EEnemyState::ChaseE);}
 	currentState = state;
+	//If hitstunning the enemy, set their behavior to disabled
+	if (currentState == EState::HitStun && controllerRef) {controllerRef->GetBlackboardComponent()->SetValueAsEnum(TEXT("State"), EEnemyState::DisabledE);}
 }
 
 void AEnemyBase::SetInvincibility(bool invincible, bool indefinite, float duration = 0.0f)

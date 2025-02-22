@@ -118,7 +118,8 @@ void UPlayerActionsComponent::Look(float yaw, float pitch)
 
 void UPlayerActionsComponent::Move(float yaw, float pitch)
 {
-	if (movementComp->IsFlying()) {return;}
+	EState currentState = iFighterRef->GetState();
+	if (movementComp->IsFlying() || currentState == EState::HitStun || currentState == EState::Death) {return;}
 
 	FRotator controlRotA {characterRef->GetControlRotation()};
 	controlRotA.Pitch = 0.0;
