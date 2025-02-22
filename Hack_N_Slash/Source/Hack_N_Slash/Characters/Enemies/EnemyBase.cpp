@@ -5,7 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Controllers\EnemyBaseController.h"
-//#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "BrainComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Combat\CombatEnemyComponent.h"
 #include "C:\Users\mvizi\Documents\Unreal Projects\Hack-N-Slash\Hack_N_Slash\Source\Hack_N_Slash\Characters\StatsComponent.h"
@@ -32,6 +32,8 @@ void AEnemyBase::BeginPlay()
 }
 
 void AEnemyBase::DisableCollision() {if (currentState == EState::Death) {SetActorEnableCollision(false);}}
+
+AActor *AEnemyBase::GetCurrentTarget() const {return Cast<AActor>(controllerRef->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));}
 
 void AEnemyBase::Tick(float DeltaTime)
 {
@@ -127,5 +129,7 @@ void AEnemyBase::Attack(bool bRanged)
 {
 	bRanged ? combatEnemyComp->PerformRangedAttack() : combatEnemyComp->PerformMeleeAttack();
 }
+
+void AEnemyBase::SetAttackingOverlay(bool flag) {combatEnemyComp->SetAttackingOverlay(flag);}
 
 /************************************Public Functions************************************/

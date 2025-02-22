@@ -21,11 +21,13 @@ EBTNodeResult::Type UBTT_PerformAttack::ExecuteTask(UBehaviorTreeComponent &Owne
     if (distanceToTarget > strafeDistance)
     {
         OwnerComp.GetBlackboardComponent()->SetValueAsEnum(TEXT("State"), EEnemyState::ChaseE);
+        iEnemyRef->SetAttackingOverlay(false);
         Abort(OwnerComp, NodeMemory);
     }
 
     //AActor* targetRef {Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("Target")))};
     //controllerRef->SetFocus(targetRef);
+    iEnemyRef->SetAttackingOverlay(true);
     iEnemyRef->Attack(bRanged);
 
     FTimerHandle AttackTimerHandle;
@@ -48,4 +50,10 @@ void UBTT_PerformAttack::Abort(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMem
     FinishLatentTask(OwnerComp, EBTNodeResult::Aborted);
 }
 
-void UBTT_PerformAttack::FinishAttackTask() {bIsFinished = true;}
+void UBTT_PerformAttack::FinishAttackTask()
+{
+    bIsFinished = true;
+    IEnemy* iEnemyRef {Cast<IEnemy>(controllerRef->GetCharacter())};
+    if (iEnemyRef == nullptr) {return;}
+    iEnemyRef->SetAttackingOverlay(false);
+}

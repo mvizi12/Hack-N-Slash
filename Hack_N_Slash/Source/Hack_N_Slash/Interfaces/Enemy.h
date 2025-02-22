@@ -30,4 +30,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDeselect();
+
+	virtual void SetAttackingOverlay(bool flag) {}
 };

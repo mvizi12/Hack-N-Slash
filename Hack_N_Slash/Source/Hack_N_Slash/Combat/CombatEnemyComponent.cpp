@@ -18,6 +18,7 @@ void UCombatEnemyComponent::BeginPlay()
 	Super::BeginPlay();
 
 	characterRef = GetOwner<ACharacter>();
+	skeletalMeshComp = characterRef->GetComponentByClass<USkeletalMeshComponent>();
 	movementComp = characterRef->GetCharacterMovement();
 	iFighterRef = Cast<IFighter>(characterRef);
 }
@@ -73,6 +74,27 @@ void UCombatEnemyComponent::HandleResetAttack()
 		iFighterRef->SetState(EState::NoneState);
 		animDur = 0.0f;
 	}
+}
+
+void UCombatEnemyComponent::RotateToTarget(AActor* target, float interpSpeed)
+{
+	if (!IsValid(target)) {return;}
+
+	FVector enemyLoc {characterRef->GetActorLocation()};
+	FVector targetLoc {target->GetActorLocation()};
+	FRotator enemyRot {characterRef->GetActorRotation()};
+	FRotator desiredRot {UKismetMathLibrary::FindLookAtRotation(enemyLoc, targetLoc)};
+	desiredRot.Roll = enemyRot.Roll;
+	desiredRot.Pitch = enemyRot.Pitch;
+	desiredRot = UKismetMathLibrary::RInterpTo_Constant(enemyRot, desiredRot, GetWorld()->GetDeltaSeconds(), interpSpeed);
+	characterRef->SetActorRotation(desiredRot);
+}
+
+void UCombatEnemyComponent::SetAttackingOverlay(bool flag)
+{
+	if (skeletalMeshComp == nullptr) {return;}
+	if (flag) {skeletalMeshComp->SetOverlayMaterial(attackingOverlay);}
+	else {skeletalMeshComp->SetOverlayMaterial(nullptr);}
 }
 
 void UCombatEnemyComponent::TryResetAttack()

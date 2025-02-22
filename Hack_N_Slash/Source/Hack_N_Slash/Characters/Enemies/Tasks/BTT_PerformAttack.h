@@ -21,11 +21,14 @@ private:
 	void Abort(UBehaviorTreeComponent &, uint8 *);
 
 protected:
-	UPROPERTY(EditAnywhere, meta = (ToolTip = "Make sure this is <= max attack radius"))
-	float acceptanceRadius {100.0f};
+	//UPROPERTY(EditAnywhere, meta = (ToolTip = "Make sure this is <= max attack radius"))
+	//float acceptanceRadius {100.0f};
 
 	UPROPERTY(EditAnywhere, meta = (Tooltip = "Is this attack ranged or not? EX: Shooting a porjectile"))
 	bool bRanged {false};
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterial* attackingOverlay;
 
 	virtual void TickTask(UBehaviorTreeComponent&, uint8*, float) override;
 

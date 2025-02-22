@@ -18,6 +18,7 @@ void AEnemyBaseController::OnPossess(APawn *InPawn)
     bTree = selfEnemyRef->GetBehaviorTree();
     if (bTree == nullptr) {return;}
     RunBehaviorTree(bTree);
+    Blackboard->SetValueAsEnum(TEXT("State"), EEnemyState::IdleE);
     Blackboard->SetValueAsFloat(TEXT("StrafeDistance"), selfEnemyRef->GetStrafeDistance());
     Blackboard->SetValueAsVector(TEXT("InitialLocation"), InPawn->GetActorLocation());
 }
