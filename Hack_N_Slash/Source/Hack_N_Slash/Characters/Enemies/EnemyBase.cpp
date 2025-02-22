@@ -72,7 +72,11 @@ float AEnemyBase::GetStrength() const
 void AEnemyBase::HandleDeath()
 {
 	/*******************Play death animation, stop the AI's brain, and disable collision************************/
-	if (controllerRef) {controllerRef->GetBlackboardComponent()->SetValueAsEnum(TEXT("State"), EEnemyState::DeadE);}
+	if (controllerRef)
+	{
+		controllerRef->GetBlackboardComponent()->SetValueAsEnum(TEXT("State"), EEnemyState::DeadE);
+		controllerRef->ClearFocus(EAIFocusPriority::Gameplay);
+	}
 	SetState(EState::Death);
 	float duration {0.0f};
 	if (deathMontage != nullptr) {duration = PlayAnimMontage(deathMontage);}
