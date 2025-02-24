@@ -43,6 +43,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DisableCollision();
 
+	UFUNCTION(BlueprintPure)
+	AActor* GetCurrentTarget() const;
+
 	UFUNCTION()
 	void HandlePlayerDeath();
 
@@ -72,5 +75,6 @@ public:
 
 	/***************Interface Functions - Enemy***************/
 	virtual void Attack(bool) override;
+	virtual void SetAttackingOverlay(bool flag) override;
 
 };

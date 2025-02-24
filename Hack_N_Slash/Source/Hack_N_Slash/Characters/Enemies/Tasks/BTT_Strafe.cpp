@@ -48,6 +48,7 @@ EBTNodeResult::Type UBTT_Strafe::ExecuteTask(UBehaviorTreeComponent &OwnerComp, 
     {
         //Handle the case where a random point couldn't be found
         //(e.g., no navigable area within the radius)
+        if (GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Failed Strafe Task"));}
         return EBTNodeResult::Failed;
     }
 }
@@ -56,6 +57,7 @@ void UBTT_Strafe::TickTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory,
 {
     //Add abort logic if lost sense of target?
     if (!bIsFinished) {return;}
+    //if (GEngine) {GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Finished"));}
     controllerRef->ReceiveMoveCompleted.Remove(FinishStrafeDelegate);
 
     double randomValue {UKismetMathLibrary::RandomFloat()};
@@ -66,6 +68,7 @@ void UBTT_Strafe::TickTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory,
         Abort(OwnerComp, NodeMemory);
     }
     else {threshold -= 0.1;}
+
     FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
 

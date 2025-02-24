@@ -43,7 +43,6 @@ private:
 
 	float yDir {0.0f}; //Vertical direction the player is holding on the left stick
 
-	double rageDeprRate {1.0f};
 	double maxRageVal {100.0f};
 
 	void DeprecateRage();
@@ -67,6 +66,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	double currentRageVal {0.0f};
+
+	UPROPERTY(EditAnywhere)
+	double rageDeprRate {1.0f};
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<EState> attackCancelableStates {EState::Attack};

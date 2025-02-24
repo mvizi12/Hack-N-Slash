@@ -8,6 +8,7 @@
 #include "CombatEnemyComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_OneParam(FOnLaunchEnemySignature, UCombatEnemyComponent, OnLaunchEnemyDelegate, FVector, distance);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnRotateToTargetESignature, UCombatEnemyComponent, OnRotateToTargetEDelegate);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -17,6 +18,7 @@ class HACK_N_SLASH_API UCombatEnemyComponent : public UActorComponent
 
 private:
 	ACharacter* characterRef;
+	USkeletalMeshComponent* skeletalMeshComp;
 	class UCharacterMovementComponent* movementComp;
 	class IFighter* iFighterRef;
 	bool bCanResetAttack {false}; //Flag to let the system know is it can perform the ResetAttack function
@@ -27,6 +29,9 @@ private:
 protected:
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode;
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterial* attackingOverlay;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<EState> invalidAttackStates {EState::Attack, EState::Death, EState::Dodge, EState::HitStun};
@@ -42,9 +47,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void LaunchEnemy(FVector distance, float lerpSpeed);
 
+	UFUNCTION(BlueprintCallable)
+	void RotateToTarget(AActor* target, float interpSpeed);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnLaunchEnemySignature OnLaunchEnemyDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnRotateToTargetESignature OnRotateToTargetEDelegate;
 
 	UCombatEnemyComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -55,6 +66,8 @@ public:
 
 	UFUNCTION(BlueprintCallable) //Public so animations can call it
 	void HandleResetAttack();
+
+	void SetAttackingOverlay(bool);
 
 	UFUNCTION(BlueprintCallable)
 	void TryResetAttack();

@@ -22,7 +22,7 @@ private:
 	void Abort(UBehaviorTreeComponent &, uint8 *);
 
 protected:
-	UPROPERTY(EditAnywhere, meta = (ToolTip = "Make sure this is less than the attack radius"))
+	UPROPERTY(EditAnywhere, meta = (ToolTip = "Make sure this is <= attack radius"))
 	float acceptanceRadius {100.0f};
 
 	virtual void TickTask(UBehaviorTreeComponent&, uint8*, float) override;
