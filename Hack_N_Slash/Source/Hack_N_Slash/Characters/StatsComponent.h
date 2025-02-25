@@ -47,9 +47,6 @@ protected:
 	float rageStatMultiplier {1.5f};
 
 	UPROPERTY(EditAnywhere)
-	UAnimMontage* deathMontage;
-
-	UPROPERTY(EditAnywhere)
 	UAnimMontage* kbHitMontage;
 
 	UPROPERTY(EditAnywhere)
